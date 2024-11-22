@@ -1,11 +1,39 @@
-// LoginScreen.js
-import React,{ useState } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
 import Button from '../components/button';
+import { useUser } from '../contexts/UserContext'; // Import context
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { login } = useUser(); // Truy cập vào hàm login từ context
+
+  const validateLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Lỗi', 'Vui lòng nhập email và mật khẩu');
+      return;
+    }
+
+    try {
+      const response = await fetch('https://6705f762031fd46a8311820f.mockapi.io/user');
+      if (response.ok) {
+        const users = await response.json();
+        const user = users.find(user => user.email === email && user.password === password);
+        if (user) {
+          // Lưu thông tin người dùng vào context
+          login(user);
+          navigation.navigate('Main');
+        } else {
+          Alert.alert('Lỗi', 'Email hoặc mật khẩu không chính xác');
+        }
+      } else {
+        Alert.alert('Lỗi', 'Không thể kết nối tới server');
+      }
+    } catch (error) {
+      Alert.alert('Lỗi', 'Đã có lỗi xảy ra. Vui lòng thử lại sau');
+    }
+  };
+
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
@@ -21,7 +49,6 @@ const LoginScreen = ({ navigation }) => {
         placeholderTextColor='#78C2E3'
         keyboardType="email-address"
       />
-
       <TextInput
         placeholder="Mật khẩu"
         style={styles.input}
@@ -30,7 +57,7 @@ const LoginScreen = ({ navigation }) => {
         placeholderTextColor='#78C2E3'
         secureTextEntry
       />
-      <Button title="Bắt đầu thôi!" onPress={() => {navigation.navigate('Main')}} />
+      <Button title="Bắt đầu thôi!" onPress={validateLogin} />
       <TouchableOpacity>
         <Text style={styles.forgotPassword}>Tôi quên mật khẩu</Text>
       </TouchableOpacity>
@@ -42,7 +69,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent:'center',
+    justifyContent: 'center',
     padding: 20,
     backgroundColor: '#e0f7fa',
   },

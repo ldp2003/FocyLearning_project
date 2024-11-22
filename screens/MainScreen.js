@@ -9,8 +9,11 @@ import {
   ScrollView,
   FlatList,
 } from 'react-native';
+import { useUser } from '../contexts/UserContext';
 
-const MainScreen = ({ navigation }) => {
+const MainScreen = ({ navigation, route }) => {
+  const { user } = useUser();
+
   const featuredLessonsData = [
     {
       id: '1',
@@ -39,7 +42,9 @@ const MainScreen = ({ navigation }) => {
   );
 
   const renderFeaturedLesson = ({ item }) => (
-    <TouchableOpacity style={styles.featuredLesson} onPress={() => navigation.navigate('Lesson')}>
+    <TouchableOpacity
+      style={styles.featuredLesson}
+      onPress={() => navigation.navigate('Lesson')}>
       <Image source={item.image} style={styles.featuredImage} />
       <Text style={styles.lessonTitle}>{item.title}</Text>
     </TouchableOpacity>
@@ -68,8 +73,8 @@ const MainScreen = ({ navigation }) => {
             style={{ width: 50, height: 50 }}
           />
           <Text style={styles.greetingText}>
-            Chào buổi sáng! chúng ta bắt đầu bằng vài câu hỏi về bữa sáng thì
-            sao?
+            {user.name}! Chào buổi sáng! chúng ta bắt đầu bằng vài câu hỏi về
+            bữa sáng thì sao?
           </Text>
         </View>
 
@@ -92,21 +97,29 @@ const MainScreen = ({ navigation }) => {
           columnWrapperStyle={styles.categories}
           scrollEnabled={false}
         />
+
         <Text style={styles.sectionTitle}>Tiếp tục từ bài học trước?</Text>
-        <View style={styles.lessonProgress}>
-          <Text style={styles.lessonTitle}>
-            Những từ vựng thường được dùng trong kinh doanh
-          </Text>
-          <View style={styles.progressContainer}>
-            <Text style={styles.progressText}>55%</Text>
-            <View style={styles.progressBar}>
-              <View style={[styles.progress, { width: '55%' }]} />
+        {user.lastLesson.progress < 100 && (
+          <View style={styles.lessonProgress}>
+            <Text style={styles.lessonTitle}>
+              {user.lastLesson.title}
+            </Text>
+            <View style={styles.progressContainer}>
+              <Text style={styles.progressText}>{user.lastLesson.progress}%</Text>
+              <View style={styles.progressBar}>
+                <View
+                  style={[
+                    styles.progress,
+                    { width: `${user.lastLesson.progress}%` },
+                  ]}
+                />
+              </View>
+              <TouchableOpacity onPress={() => navigation.navigate('Lesson',{lessonId: user.lastLesson.id })}>
+                <Text style={styles.continueText}>Tiếp tục</Text>
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity onPress={() => navigation.navigate('Lesson')}>
-              <Text style={styles.continueText}>Tiếp tục</Text>
-            </TouchableOpacity>
           </View>
-        </View>
+        )}
 
         <Text style={styles.sectionTitle}>Bài học của ngày hôm nay</Text>
         <View style={styles.todayLesson}>
@@ -183,7 +196,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#e0f7fa',
     flex: 1,
-    paddingBottom: 50
+    paddingBottom: 50,
   },
   scrollContainer: {
     padding: 20,
@@ -196,10 +209,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop:40,
+    paddingTop: 40,
     paddingLeft: 10,
     paddingRight: 10,
-    height:100
+    height: 100,
   },
   avatar: {
     width: 50,
@@ -217,7 +230,7 @@ const styles = StyleSheet.create({
   greetingContainer: {
     flexDirection: 'row',
     backgroundColor: '#fff',
-    justifyContent:'space-between',
+    justifyContent: 'space-between',
     borderRadius: 10,
     padding: 15,
     marginBottom: 20,
@@ -226,7 +239,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#0597D8',
     textAlign: 'center',
-    width:'80%'
+    width: '80%',
   },
   searchBar: {
     padding: 10,
@@ -359,7 +372,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    height: 50, 
+    height: 50,
   },
   footerItem: {
     alignItems: 'center',

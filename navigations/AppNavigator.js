@@ -21,7 +21,7 @@ const AppNavigator = () => {
  
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Quiz" screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRouteName="Start" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Start" component={StartScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Survey" component={SurveyScreen} />
