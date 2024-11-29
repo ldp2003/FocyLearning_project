@@ -6,13 +6,78 @@ const RegisterScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [errors, setErrors] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
+    // Reset errors
+    setErrors({
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    });
+
+    let formIsValid = true;
+
+    // Kiểm tra tên
+    if (!name) {
+      formIsValid = false;
+      setErrors(prevErrors => ({ ...prevErrors, name: 'Vui lòng nhập tên của bạn!' }));
+    }
+
+    // Kiểm tra email hợp lệ
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!email || !emailRegex.test(email)) {
+      formIsValid = false;
+      setErrors(prevErrors => ({ ...prevErrors, email: 'Vui lòng nhập email hợp lệ!' }));
+    }
+
+    // Kiểm tra mật khẩu
+    if (password.length < 6) {
+      formIsValid = false;
+      setErrors(prevErrors => ({ ...prevErrors, password: 'Mật khẩu phải có ít nhất 6 ký tự!' }));
+    }
+
+    // Kiểm tra xác nhận mật khẩu
     if (password !== confirmPassword) {
-      alert("Mật khẩu xác nhận không khớp!");
-    } else {
-      // Thêm sau
-      navigation.navigate('Main');
+      formIsValid = false;
+      setErrors(prevErrors => ({ ...prevErrors, confirmPassword: 'Mật khẩu xác nhận không khớp!' }));
+    }
+
+    if (formIsValid) {
+      // Nếu tất cả điều kiện hợp lệ, gửi dữ liệu lên MockAPI
+      try {
+        const response = await fetch('https://6705f762031fd46a8311820f.mockapi.io/user', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: name,
+            email: email,
+            password: password,
+          }),
+        });
+
+        if (response.ok) {
+          const userData = await response.json();
+          console.log('Đăng ký thành công: ', userData);
+          // Điều hướng đến màn hình chính
+          navigation.navigate('Main');
+        } else {
+          const errorData = await response.json();
+          console.error('Lỗi API: ', errorData);
+          alert('Đã xảy ra lỗi khi đăng ký. Vui lòng thử lại.');
+        }
+      } catch (error) {
+        console.error('Lỗi khi gửi yêu cầu: ', error);
+        alert('Đã có lỗi xảy ra. Vui lòng thử lại sau.');
+      }
     }
   };
 
@@ -23,7 +88,6 @@ const RegisterScreen = ({ navigation }) => {
       </TouchableOpacity>
       <Text style={styles.title}>Đăng ký</Text>
       <Image source={require('../assets/fox-logo.png')} style={styles.logo} />
-     
 
       <TextInput
         placeholder="Tên của cậu"
@@ -32,6 +96,7 @@ const RegisterScreen = ({ navigation }) => {
         onChangeText={setName}
         placeholderTextColor='#78C2E3'
       />
+      {errors.name ? <Text style={styles.errorText}>{errors.name}</Text> : null}
 
       <TextInput
         placeholder="Email"
@@ -41,6 +106,7 @@ const RegisterScreen = ({ navigation }) => {
         placeholderTextColor='#78C2E3'
         keyboardType="email-address"
       />
+      {errors.email ? <Text style={styles.errorText}>{errors.email}</Text> : null}
 
       <TextInput
         placeholder="Mật khẩu"
@@ -50,6 +116,7 @@ const RegisterScreen = ({ navigation }) => {
         placeholderTextColor='#78C2E3'
         secureTextEntry
       />
+      {errors.password ? <Text style={styles.errorText}>{errors.password}</Text> : null}
 
       <TextInput
         placeholder="Xác nhận mật khẩu"
@@ -59,6 +126,7 @@ const RegisterScreen = ({ navigation }) => {
         placeholderTextColor='#78C2E3'
         secureTextEntry
       />
+      {errors.confirmPassword ? <Text style={styles.errorText}>{errors.confirmPassword}</Text> : null}
 
       <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
         <Text style={styles.registerButtonText}>Đăng ký thôi!</Text>
@@ -126,6 +194,11 @@ const styles = StyleSheet.create({
     color: '#0597D8',
     marginTop: 20,
     fontSize: 16,
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 14,
+    marginBottom: 10,
   },
 });
 

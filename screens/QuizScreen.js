@@ -30,6 +30,12 @@ const QuizScreen = ({ navigation }) => {
         ],
         correctAnswer: 'Tôi là Focy!',
       },
+      {
+            type: 'multiple-choice',
+            question: 'Hello, I ... Focy!',
+            options: ['am', 'is', 'are'],
+            correctAnswer: 'am',
+          },
     ],
   };
 

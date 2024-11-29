@@ -52,7 +52,7 @@ const LessonIntroScreen = ({ navigation }) => {
           khi giao tiếp. Mình tin rằng khi hoàn thành và cố gắng ôn tập, bạn có
           thể tự tin nói với một người nước ngoài trong những chủ đề cơ bản!
         </Text>
-        <TouchableOpacity style={styles.startButton}>
+        <TouchableOpacity style={styles.startButton} onPress={() => navigation.navigate('Quiz')}>
           <Text style={styles.startButtonText}>Bắt đầu thôi!</Text>
         </TouchableOpacity>
       </ScrollView>
