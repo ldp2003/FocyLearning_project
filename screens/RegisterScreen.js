@@ -14,72 +14,117 @@ const RegisterScreen = ({ navigation }) => {
   });
 
   const handleRegister = async () => {
-    // Reset errors
-    setErrors({
-      name: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-    });
+  setErrors({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
 
-    let formIsValid = true;
+  let formIsValid = true;
 
-    // Kiểm tra tên
-    if (!name) {
-      formIsValid = false;
-      setErrors(prevErrors => ({ ...prevErrors, name: 'Vui lòng nhập tên của bạn!' }));
-    }
+  if (!name) {
+    formIsValid = false;
+    setErrors((prevErrors) => ({ ...prevErrors, name: 'Vui lòng nhập tên của bạn!' }));
+  }
 
-    // Kiểm tra email hợp lệ
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!email || !emailRegex.test(email)) {
-      formIsValid = false;
-      setErrors(prevErrors => ({ ...prevErrors, email: 'Vui lòng nhập email hợp lệ!' }));
-    }
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!email || !emailRegex.test(email)) {
+    formIsValid = false;
+    setErrors((prevErrors) => ({ ...prevErrors, email: 'Vui lòng nhập email hợp lệ!' }));
+  }
 
-    // Kiểm tra mật khẩu
-    if (password.length < 6) {
-      formIsValid = false;
-      setErrors(prevErrors => ({ ...prevErrors, password: 'Mật khẩu phải có ít nhất 6 ký tự!' }));
-    }
+  if (password.length < 6) {
+    formIsValid = false;
+    setErrors((prevErrors) => ({ ...prevErrors, password: 'Mật khẩu phải có ít nhất 6 ký tự!' }));
+  }
 
-    // Kiểm tra xác nhận mật khẩu
-    if (password !== confirmPassword) {
-      formIsValid = false;
-      setErrors(prevErrors => ({ ...prevErrors, confirmPassword: 'Mật khẩu xác nhận không khớp!' }));
-    }
+  if (password !== confirmPassword) {
+    formIsValid = false;
+    setErrors((prevErrors) => ({ ...prevErrors, confirmPassword: 'Mật khẩu xác nhận không khớp!' }));
+  }
 
-    if (formIsValid) {
-      // Nếu tất cả điều kiện hợp lệ, gửi dữ liệu lên MockAPI
-      try {
-        const response = await fetch('https://6705f762031fd46a8311820f.mockapi.io/user', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+  if (formIsValid) {
+    try {
+      const response = await fetch('https://6705f762031fd46a8311820f.mockapi.io/user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          lessons: [
+            {
+              lessonId: 'lesson1',
+              title: 'Từ vựng giao tiếp thông dụng hiện nay',
+              progress: 50,
+              completedQuestions: [
+                {
+                  questionId: 'question1',
+                  answer: 'Xin chào!',
+                  isCorrect: true,
+                },
+                {
+                  questionId: 'question2',
+                  answer: 'Tôi là Focy!',
+                  isCorrect: true,
+                },
+              ],
+              status: 'completed',
+            },
+            {
+              lessonId: 'lesson2',
+              progress: 80,
+              completedQuestions: [
+                {
+                  questionId: 'question3',
+                  answer: 'Xin chào bạn!',
+                  isCorrect: true,
+                },
+              ],
+              status: 'in-progress',
+            },
+            {
+              lessonId: 'lesson3',
+              progress: 0,
+              completedQuestions: [],
+              status: 'not-started',
+            },
+          ],
+          lastLesson: {
+            lessonId: 'lesson2',
+            status: 'in-progress',
+            title: 'Từ vựng giao tiếp thông dụng hiện nay',
+            progress: 80,
+            completedQuestions: [
+              {
+                questionId: 'question3',
+                answer: 'Xin chào bạn!',
+                isCorrect: true,
+              },
+            ],
           },
-          body: JSON.stringify({
-            name: name,
-            email: email,
-            password: password,
-          }),
-        });
+        }),
+      });
 
-        if (response.ok) {
-          const userData = await response.json();
-          console.log('Đăng ký thành công: ', userData);
-          // Điều hướng đến màn hình chính
-          navigation.navigate('Main');
-        } else {
-          const errorData = await response.json();
-          console.error('Lỗi API: ', errorData);
-          alert('Đã xảy ra lỗi khi đăng ký. Vui lòng thử lại.');
-        }
-      } catch (error) {
-        console.error('Lỗi khi gửi yêu cầu: ', error);
-        alert('Đã có lỗi xảy ra. Vui lòng thử lại sau.');
+      if (response.ok) {
+        const userData = await response.json();
+        console.log('Đăng ký thành công: ', userData);
+        navigation.navigate('Main');
+      } else {
+        const errorData = await response.json();
+        console.error('Lỗi API: ', errorData);
+        alert('Đã xảy ra lỗi khi đăng ký. Vui lòng thử lại.');
       }
+    } catch (error) {
+      console.error('Lỗi khi gửi yêu cầu: ', error);
+      alert('Đã có lỗi xảy ra. Vui lòng thử lại sau.');
     }
-  };
+  }
+};
+
 
   return (
     <View style={styles.container}>

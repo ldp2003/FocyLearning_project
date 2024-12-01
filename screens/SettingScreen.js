@@ -8,7 +8,7 @@ import {
   ScrollView,
 } from "react-native";
 
-export default function SettingScreen() {
+export default function SettingScreen({ navigation }) {
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -49,7 +49,7 @@ export default function SettingScreen() {
             <Text style={styles.optionArrow}>›</Text>
           </TouchableOpacity>
         ))}
-        <TouchableOpacity style={styles.logoutButton}>
+        <TouchableOpacity style={styles.logoutButton} onPress={() => navigation.navigate('Login')}>
           <Text style={styles.logoutText}>Đăng xuất</Text>
         </TouchableOpacity>
       </ScrollView>
