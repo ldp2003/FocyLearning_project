@@ -7,31 +7,13 @@ import {
   StyleSheet,
   Image,
 } from 'react-native';
+import { useRoute } from '@react-navigation/native';
+import { useUser } from '../contexts/UserContext';
 
-const QuizScreen = ({ navigation }) => {
+const QuizScreen = ({ navigation, route }) => {
   // Lesson data
-  const lesson = {
-    title: 'Từ vựng giao tiếp thông dụng hiện nay',
-    questions: [
-      {
-        type: 'fill-in-the-blank',
-        question: 'Hello!',
-        correctAnswer: 'Xin chào!',
-        placeholder: 'Nhập ở đây',
-      },
-      {
-        type: 'multiple-choice',
-        question: 'I am Focy!',
-        options: [
-          'Tôi là Focy!',
-          'Tôi bị Focy!',
-          'Cậu là Focy!',
-          'Tôi chơi Focy!',
-        ],
-        correctAnswer: 'Tôi là Focy!',
-      },
-    ],
-  };
+  const { lesson } = route.params;
+  const { user, updateUser } = useUser();
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswer, setUserAnswer] = useState('');
@@ -40,149 +22,258 @@ const QuizScreen = ({ navigation }) => {
 
   const currentQuestion = lesson.questions[currentQuestionIndex];
 
-  const handleNextQuestion = () => {
-  // Reset trạng thái câu trả lời người dùng
-  setUserAnswer('');
-  setSelectedAnswer('');
-  setIsCorrect(null);
-  // Chuyển sang câu hỏi tiếp theo hoặc hiển thị kết quả
-  if (currentQuestionIndex === lesson.questions.length -1 ) {
-    // Hiển thị màn hình kết quả nếu đây là câu hỏi cuối
-    navigation.navigate('Result', { lesson });
-  } else {
-    // Chuyển sang câu hỏi tiếp theo
-    setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
-  }
-};
+  const handleNextQuestion = async () => {
+    // Lấy câu trả lời của người dùng và kiểm tra đúng/sai
+    const userAnswerData = {
+      questionId: currentQuestion.id,
+      answer:
+        currentQuestion.type === 'fill-in-the-blank'
+          ? userAnswer
+          : selectedAnswer,
+      isCorrect: isCorrect,
+    };
 
-const validateAnswer = () => {
-  if (currentQuestion.type === 'fill-in-the-blank') {
-    const cleanUserAnswer = userAnswer
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-zA-Z0-9\s]/g, '')
-      .replace(/\s+/g, ' ');
-    const cleanCorrectAnswer = currentQuestion.correctAnswer
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-zA-Z0-9\s]/g, '')
-      .replace(/\s+/g, ' ');
+    // Cập nhật bài học hiện tại trong danh sách lessons
+    const updatedLessons = user.lessons.map((l) => {
+      if (l.lessonId === lesson.id) {
+        console.log('Updating lesson:', l);
 
-    setIsCorrect(cleanUserAnswer === cleanCorrectAnswer);
-  } else if (currentQuestion.type === 'multiple-choice') {
-    setIsCorrect(selectedAnswer === currentQuestion.correctAnswer);
-  }
-};
+        // Kiểm tra xem câu hỏi đã tồn tại trong completedQuestions chưa
+        const questionIndex = l.completedQuestions.findIndex(
+          (q) => q.questionId === userAnswerData.questionId
+        );
+        console.log(userAnswerData)
+        // Nếu câu hỏi đã có trong completedQuestions, cập nhật câu trả lời
+        const updatedCompletedQuestions =
+          questionIndex !== -1
+            ? l.completedQuestions.map((q, index) =>
+                index === questionIndex ? userAnswerData : q
+              )
+            : [...l.completedQuestions, userAnswerData];
 
-return (
-  <View style={styles.container}>
-    {/* Header */}
-    <View style={styles.header}>
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Text style={styles.backButtonText}>←</Text>
-      </TouchableOpacity>
-      <Image source={require('../assets/fox-avatar.png')} style={styles.avatar} />
-      <View style={styles.headerIcons}>
-        <TouchableOpacity>
-          <Image source={require('../assets/Bell.png')} style={styles.icon} />
+        // Cập nhật progress
+        const updatedProgress =
+          ((currentQuestionIndex + 1) / lesson.questions.length) * 100;
+
+        console.log('Updated Progress:', updatedProgress);
+
+        // Trả về bài học đã cập nhật
+        return {
+          ...l,
+          completedQuestions: updatedCompletedQuestions,
+          progress: updatedProgress,
+          status:
+            currentQuestionIndex === lesson.questions.length - 1
+              ? 'completed'
+              : 'in-progress',
+        };
+      }
+
+      // Trả về bài học không thay đổi
+      return l;
+    });
+
+    // Log kết quả sau map()
+    console.log('Updated Lessons:', updatedLessons);
+    try {
+      // Gửi yêu cầu cập nhật lessons của user
+      const response = await fetch(
+        `https://6705f762031fd46a8311820f.mockapi.io/user/${user.id}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ lessons: updatedLessons }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error('Failed to update question progress.');
+      }
+      const updatedUser = { ...user, lessons: updatedLessons };
+      updateUser(updatedUser);
+      // Reset trạng thái câu trả lời người dùng
+      setUserAnswer('');
+      setSelectedAnswer('');
+      setIsCorrect(null);
+      // Chuyển sang câu hỏi tiếp theo hoặc hiển thị kết quả
+      if (currentQuestionIndex === lesson.questions.length - 1) {
+        // Hiển thị màn hình kết quả nếu đây là câu hỏi cuối
+        navigation.navigate('Result', { lesson });
+      } else {
+        // Chuyển sang câu hỏi tiếp theo
+        setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
+      }
+    } catch (error) {
+      console.error('Error updating question progress:', error);
+      alert('Lỗi khi lưu tiến trình!');
+    }
+  };
+
+  const validateAnswer = () => {
+    if (currentQuestion.type === 'fill-in-the-blank') {
+      const cleanUserAnswer = userAnswer
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-zA-Z0-9\s]/g, '')
+        .replace(/\s+/g, ' ');
+      const cleanCorrectAnswer = currentQuestion.correctAnswer
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-zA-Z0-9\s]/g, '')
+        .replace(/\s+/g, ' ');
+
+      setIsCorrect(cleanUserAnswer === cleanCorrectAnswer);
+    } else if (currentQuestion.type === 'multiple-choice') {
+      setIsCorrect(selectedAnswer === currentQuestion.correctAnswer);
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Text style={styles.backButtonText}>←</Text>
+        </TouchableOpacity>
+        <Image
+          source={require('../assets/fox-avatar.png')}
+          style={styles.avatar}
+        />
+        <View style={styles.headerIcons}>
+          <TouchableOpacity>
+            <Image source={require('../assets/Bell.png')} style={styles.icon} />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Progress Bar */}
+      <View style={styles.progressBar}>
+        <View
+          style={{
+            ...styles.progressIndicator,
+            width: `${
+              ((currentQuestionIndex + 1) / lesson.questions.length) * 100
+            }%`,
+          }}
+        />
+      </View>
+
+      <View style={styles.lessonContent}>
+        <Text style={styles.lesson}>Bạn đang học: </Text>
+        <Text style={styles.lesson}>{lesson.title}</Text>
+      </View>
+
+      {/* Question Content */}
+      <View style={styles.quizContainer}>
+        <View style={styles.questionContainer}>
+          <Image
+            source={require('../assets/fox-logo.png')}
+            style={{ width: 80, height: 80 }}
+          />
+          <View>
+            {currentQuestion.type === 'fill-in-the-blank' && (
+              <Text style={styles.ask}>Dịch câu này cho tớ nhé:</Text>
+            )}
+            {currentQuestion.type === 'multiple-choice' && (
+              <Text style={styles.ask}>Bạn hãy chọn bản dịch đúng nhé!</Text>
+            )}
+            <Text style={styles.questionText}>{currentQuestion.question}</Text>
+          </View>
+        </View>
+
+        {/* Render based on question type */}
+        {currentQuestion.type === 'fill-in-the-blank' && (
+          <TextInput
+            style={styles.textInput}
+            placeholder={'Nhập tại đây!'}
+            value={userAnswer}
+            onChangeText={setUserAnswer}
+          />
+        )}
+
+        {currentQuestion.type === 'multiple-choice' && (
+          <View>
+            {currentQuestion.options.map((option, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.optionButton,
+                  selectedAnswer === option && styles.selectedOption,
+                ]}
+                onPress={() => setSelectedAnswer(option)}>
+                <Text style={styles.optionText}>{option}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+
+        {/* Feedback */}
+        {isCorrect !== null && (
+          <Text style={styles.feedbackText}>
+            {isCorrect ? 'Chính xác!' : 'Sai rồi!'}
+          </Text>
+        )}
+
+        {/* "Next" or "Submit" Button */}
+        <TouchableOpacity
+          style={styles.submitButton}
+          onPress={isCorrect === null ? validateAnswer : handleNextQuestion}>
+          <Text style={styles.submitButtonText}>
+            {currentQuestionIndex === lesson.questions.length - 1
+              ? 'Hoàn thành'
+              : isCorrect === null
+              ? 'Kiểm tra'
+              : 'Tiếp tục'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Footer */}
+      <View style={styles.footer}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Home')}
+          style={styles.footerItem}>
+          <Image
+            source={require('../assets/searchft.png')}
+            style={styles.iconFooter}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Home')}
+          style={styles.footerItem}>
+          <Image
+            source={require('../assets/lesson.png')}
+            style={styles.iconFooter}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Lessons')}
+          style={styles.footerItem}>
+          <Image
+            source={require('../assets/Home.png')}
+            style={styles.iconFooter}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Profile')}
+          style={styles.footerItem}>
+          <Image
+            source={require('../assets/userft.png')}
+            style={styles.iconFooter}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Settings')}
+          style={styles.footerItem}>
+          <Image
+            source={require('../assets/settingft.png')}
+            style={styles.iconFooter}
+          />
         </TouchableOpacity>
       </View>
     </View>
-
-    {/* Progress Bar */}
-    <View style={styles.progressBar}>
-      <View
-        style={{
-          ...styles.progressIndicator,
-          width: `${((currentQuestionIndex + 1) / lesson.questions.length) * 100}%`,
-        }}
-      />
-    </View>
-
-    <View style={styles.lessonContent}>
-      <Text style={styles.lesson}>Bạn đang học: </Text>
-      <Text style={styles.lesson}>{lesson.title}</Text>
-    </View>
-
-    {/* Question Content */}
-    <View style={styles.quizContainer}>
-      <View style={styles.questionContainer}>
-        <Image source={require('../assets/fox-logo.png')} style={{ width: 80, height: 80 }} />
-        <View>
-          {currentQuestion.type === 'fill-in-the-blank' && (
-            <Text style={styles.ask}>Dịch câu này cho tớ nhé:</Text>
-          )}
-          {currentQuestion.type === 'multiple-choice' && (
-            <Text style={styles.ask}>Bạn hãy chọn bản dịch đúng nhé!</Text>
-          )}
-          <Text style={styles.questionText}>{currentQuestion.question}</Text>
-        </View>
-      </View>
-
-      {/* Render based on question type */}
-      {currentQuestion.type === 'fill-in-the-blank' && (
-        <TextInput
-          style={styles.textInput}
-          placeholder={currentQuestion.placeholder}
-          value={userAnswer}
-          onChangeText={setUserAnswer}
-        />
-      )}
-
-      {currentQuestion.type === 'multiple-choice' && (
-        <View>
-          {currentQuestion.options.map((option, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[styles.optionButton, selectedAnswer === option && styles.selectedOption]}
-              onPress={() => setSelectedAnswer(option)}>
-              <Text style={styles.optionText}>{option}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
-
-      {/* Feedback */}
-      {isCorrect !== null && (
-        <Text style={styles.feedbackText}>
-          {isCorrect ? 'Chính xác!' : 'Sai rồi!'}
-        </Text>
-      )}
-
-      {/* "Next" or "Submit" Button */}
-      <TouchableOpacity
-        style={styles.submitButton}
-        onPress={isCorrect === null ? validateAnswer : handleNextQuestion}>
-        <Text style={styles.submitButtonText}>
-          {currentQuestionIndex === lesson.questions.length - 1
-            ? 'Hoàn thành'
-            : isCorrect === null
-            ? 'Kiểm tra'
-            : 'Tiếp tục'}
-        </Text>
-      </TouchableOpacity>
-    </View>
-
-    {/* Footer */}
-    <View style={styles.footer}>
-      <TouchableOpacity onPress={() => navigation.navigate('Home')} style={styles.footerItem}>
-        <Image source={require('../assets/searchft.png')} style={styles.iconFooter} />
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('Home')} style={styles.footerItem}>
-        <Image source={require('../assets/lesson.png')} style={styles.iconFooter} />
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('Lessons')} style={styles.footerItem}>
-        <Image source={require('../assets/Home.png')} style={styles.iconFooter} />
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={styles.footerItem}>
-        <Image source={require('../assets/userft.png')} style={styles.iconFooter} />
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('Settings')} style={styles.footerItem}>
-        <Image source={require('../assets/settingft.png')} style={styles.iconFooter} />
-      </TouchableOpacity>
-    </View>
-  </View>
-);
+  );
 };
 
 const styles = StyleSheet.create({

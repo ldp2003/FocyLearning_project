@@ -18,8 +18,13 @@ export const UserProvider = ({ children }) => {
     setUser(null); // Đăng xuất và reset user
   };
 
+   
+  const updateUser = (updatedUserData) => {
+    setUser(updatedUserData); 
+  };
+
   return (
-    <UserContext.Provider value={{ user, login, logout }}>
+    <UserContext.Provider value={{ user, login, logout, updateUser }}>
       {children}
     </UserContext.Provider>
   );

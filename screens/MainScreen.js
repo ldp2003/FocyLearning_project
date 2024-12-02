@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,19 +13,8 @@ import { useUser } from '../contexts/UserContext';
 
 const MainScreen = ({ navigation, route }) => {
   const { user } = useUser();
-
-  const featuredLessonsData = [
-    {
-      id: '1',
-      title: 'Từ vựng giao tiếp thông dụng hiện nay',
-      image: require('../assets/featured_image_1'),
-    },
-    {
-      id: '2',
-      title: 'Giao tiếp trong kinh doanh',
-      image: require('../assets/featured_image_2'),
-    },
-  ];
+  const [featuredLessons, setFeaturedLessons] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const categoriesData = [
     { id: '1', title: 'Ngữ pháp', image: require('../assets/grammar.png') },
@@ -41,10 +30,28 @@ const MainScreen = ({ navigation, route }) => {
     </TouchableOpacity>
   );
 
+  useEffect(() => {
+    const fetchFeaturedLessons = async () => {
+      try {
+        const response = await fetch(
+          'https://6705f762031fd46a8311820f.mockapi.io/lesson'
+        );
+        const data = await response.json();
+        setFeaturedLessons(data);
+      } catch (error) {
+        console.error('Failed to fetch featured lessons:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeaturedLessons();
+  }, []);
+
   const renderFeaturedLesson = ({ item }) => (
     <TouchableOpacity
       style={styles.featuredLesson}
-      onPress={() => navigation.navigate('Lesson')}>
+      onPress={() => navigation.navigate('Lesson',{lessonId: item.id, })}>
       <Image source={item.image} style={styles.featuredImage} />
       <Text style={styles.lessonTitle}>{item.title}</Text>
     </TouchableOpacity>
@@ -98,25 +105,32 @@ const MainScreen = ({ navigation, route }) => {
           scrollEnabled={false}
         />
 
-        <Text style={styles.sectionTitle}>Tiếp tục từ bài học trước?</Text>
-        {user.lastLesson.progress < 100 && (
-          <View style={styles.lessonProgress}>
-            <Text style={styles.lessonTitle}>
-              {user.lastLesson.title}
-            </Text>
-            <View style={styles.progressContainer}>
-              <Text style={styles.progressText}>{user.lastLesson.progress}%</Text>
-              <View style={styles.progressBar}>
-                <View
-                  style={[
-                    styles.progress,
-                    { width: `${user.lastLesson.progress}%` },
-                  ]}
-                />
+        {user.lastLesson && (
+          <View>
+            <Text style={styles.sectionTitle}>Tiếp tục từ bài học trước?</Text>
+            <View style={styles.lessonProgress}>
+              <Text style={styles.lessonTitle}>{user.lastLesson.title}</Text>
+              <View style={styles.progressContainer}>
+                <Text style={styles.progressText}>
+                  {user.lastLesson.progress}%
+                </Text>
+                <View style={styles.progressBar}>
+                  <View
+                    style={[
+                      styles.progress,
+                      { width: `${user.lastLesson.progress}%` },
+                    ]}
+                  />
+                </View>
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate('Lesson', {
+                      lessonId: user.lastLesson.id,
+                    })
+                  }>
+                  <Text style={styles.continueText}>Tiếp tục</Text>
+                </TouchableOpacity>
               </View>
-              <TouchableOpacity onPress={() => navigation.navigate('Lesson',{lessonId: user.lastLesson.id })}>
-                <Text style={styles.continueText}>Tiếp tục</Text>
-              </TouchableOpacity>
             </View>
           </View>
         )}
@@ -138,7 +152,7 @@ const MainScreen = ({ navigation, route }) => {
           </TouchableOpacity>
         </View>
         <FlatList
-          data={featuredLessonsData}
+          data={featuredLessons}
           renderItem={renderFeaturedLesson}
           keyExtractor={(item) => item.id}
           horizontal
@@ -164,7 +178,7 @@ const MainScreen = ({ navigation, route }) => {
           />
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => navigation.navigate('Lessons')}
+          onPress={() => navigation.navigate('Main')}
           style={styles.footerItem}>
           <Image
             source={require('../assets/Home.png')}

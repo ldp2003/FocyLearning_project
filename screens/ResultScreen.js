@@ -19,7 +19,7 @@ const ResultScreen = ({ route, navigation }) => {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => navigation.navigate('Lesson', {lessonId: lesson.id})}>
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
         <Image source={require('../assets/fox-avatar.png')} style={styles.avatar} />
@@ -57,8 +57,13 @@ const ResultScreen = ({ route, navigation }) => {
 
         <TouchableOpacity
           style={styles.nextButton}
-          onPress={() => navigation.navigate('Home')}>
-          <Text style={styles.nextButtonText}>Tiếp tục</Text>
+          onPress={() => navigation.navigate('Quiz', {lesson: lesson})}>
+          <Text style={styles.nextButtonText}>Làm lại</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.nextButton}
+          onPress={() => navigation.navigate('Lesson', {lessonId: lesson.id})}>
+          <Text style={styles.nextButtonText}>Quay lại bài học</Text>
         </TouchableOpacity>
       </View>
 
@@ -136,6 +141,7 @@ const styles = StyleSheet.create({
   nextButton: {
     backgroundColor: '#0597D8',
     padding: 15,
+    marginBottom:15,
     borderRadius: 10,
     alignItems: 'center',
     width: '60%',

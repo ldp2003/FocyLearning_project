@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,9 +6,57 @@ import {
   Image,
   StyleSheet,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
+import { useRoute } from '@react-navigation/native';
+import { useUser } from '../contexts/UserContext';
 
-const LessonIntroScreen = ({ navigation }) => {
+const LessonScreen = ({ navigation, route }) => {
+  const { user } = useUser();
+  const { lessonId } = route.params;
+
+  const [lesson, setLesson] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const fetchLesson = async () => {
+      try {
+        const response = await fetch(`https://6705f762031fd46a8311820f.mockapi.io/lesson/${lessonId}`);
+        const data = await response.json();
+        setLesson(data);
+        const lesson = user.lessons?.find((l) => l.lessonId === lessonId);
+        if(lesson)
+          setProgress(lesson.progress)
+      } catch (err) {
+        setError('Không thể tải bài học. Vui lòng thử lại.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLesson();
+  }, [lessonId]);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0597D8" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>{error}</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.retryButton}>
+          <Text style={styles.retryText}>Quay lại</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -27,32 +75,34 @@ const LessonIntroScreen = ({ navigation }) => {
       </View>
       <ScrollView style={styles.scrollContainer}>
         <Image
-          source={require('../assets/featured_image_1')}
+          source={lesson.image}
           style={styles.lessonImage}
         />
         <Text style={styles.lessonTitle}>
-          Từ vựng giao tiếp thông dụng hiện nay
+          {lesson.title}
         </Text>
         <View style={styles.tagsContainer}>
-          <Text style={styles.tag}>Từ vựng</Text>
-          <Text style={styles.tag}>Giao tiếp</Text>
-          <Text style={styles.tag}>Thông dụng</Text>
+          {lesson.categories?.map((tag, index) => (
+            <Text key={index} style={styles.tag}>{tag}</Text>
+          ))}
         </View>
         <View style={styles.infoSection}>
           <Text style={styles.infoText}>Độ dài dự kiến</Text>
-          <Text style={styles.infoValue}>~35 - 40 phút</Text>
+          <Text style={styles.infoValue}>~{lesson.expectedLength} - {lesson.expectedLength+5} phút</Text>
         </View>
         <View style={styles.infoSection}>
           <Text style={styles.infoText}>Tiến độ của bạn</Text>
+          {progress===0 ?
           <Text style={styles.infoValue}>Bạn chưa học bài học này!</Text>
+          :<Text style={styles.infoValue}>{progress}%</Text>
+          }
+          
         </View>
         <Text style={styles.descriptionTitle}>Giới thiệu về bài học</Text>
         <Text style={styles.descriptionText}>
-          Bài học sẽ cho bạn những từ vựng được sử dụng phổ biến nhất hiện tại
-          khi giao tiếp. Mình tin rằng khi hoàn thành và cố gắng ôn tập, bạn có
-          thể tự tin nói với một người nước ngoài trong những chủ đề cơ bản!
+          {lesson.description}
         </Text>
-        <TouchableOpacity style={styles.startButton}>
+        <TouchableOpacity style={styles.startButton} onPress={() => navigation.navigate('Quiz', {lesson: lesson })}>
           <Text style={styles.startButtonText}>Bắt đầu thôi!</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -112,6 +162,32 @@ const styles = StyleSheet.create({
     backgroundColor: '#e0f7fa',
     flex: 1,
     paddingBottom: 50,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#d32f2f',
+    textAlign: 'center',
+  },
+  retryButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: '#0597D8',
+    borderRadius: 5,
+  },
+  retryText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
   backText: {
     marginLeft:10,
@@ -231,4 +307,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LessonIntroScreen;
+export default LessonScreen;
