@@ -12,8 +12,39 @@ import { useUser } from '../contexts/UserContext';
 
 const QuizScreen = ({ navigation, route }) => {
   // Lesson data
+<<<<<<< HEAD
   const { lesson } = route.params;
   const { user, updateUser } = useUser();
+=======
+  const lesson = {
+    title: 'Từ vựng giao tiếp thông dụng hiện nay',
+    questions: [
+      {
+        type: 'fill-in-the-blank',
+        question: 'Hello!',
+        correctAnswer: 'Xin chào!',
+        placeholder: 'Nhập ở đây',
+      },
+      {
+        type: 'multiple-choice',
+        question: 'I am Focy!',
+        options: [
+          'Tôi là Focy!',
+          'Tôi bị Focy!',
+          'Cậu là Focy!',
+          'Tôi chơi Focy!',
+        ],
+        correctAnswer: 'Tôi là Focy!',
+      },
+      {
+            type: 'multiple-choice',
+            question: 'Hello, I ... Focy!',
+            options: ['am', 'is', 'are'],
+            correctAnswer: 'am',
+          },
+    ],
+  };
+>>>>>>> f650eb78735edd3cf2d6e9491bdd48fb88784d34
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswer, setUserAnswer] = useState('');

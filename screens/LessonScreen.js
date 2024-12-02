@@ -102,7 +102,11 @@ const LessonScreen = ({ navigation, route }) => {
         <Text style={styles.descriptionText}>
           {lesson.description}
         </Text>
+<<<<<<< HEAD
         <TouchableOpacity style={styles.startButton} onPress={() => navigation.navigate('Quiz', {lesson: lesson })}>
+=======
+        <TouchableOpacity style={styles.startButton} onPress={() => navigation.navigate('Quiz')}>
+>>>>>>> f650eb78735edd3cf2d6e9491bdd48fb88784d34
           <Text style={styles.startButtonText}>Bắt đầu thôi!</Text>
         </TouchableOpacity>
       </ScrollView>
