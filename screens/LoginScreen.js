@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, TextInput, Alert, ActivityIndicator } from 'react-native';
 import Button from '../components/button';
 import { useUser } from '../contexts/UserContext';
 
@@ -7,14 +7,16 @@ const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState(''); 
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useUser();
 
   const validateLogin = async () => {
-    // Reset lỗi mỗi lần bấm nút
     setErrorMessage('');
+    setIsLoading(true);
 
     if (!email || !password) {
       setErrorMessage('Vui lòng nhập email và mật khẩu.');
+      setIsLoading(false);
       return;
     }
 
@@ -25,7 +27,6 @@ const LoginScreen = ({ navigation }) => {
         const user = users.find(user => user.email === email && user.password === password);
 
         if (user) {
-          // Lưu thông tin người dùng vào context
           login(user);
           navigation.navigate('Main');
         } else {
@@ -36,6 +37,8 @@ const LoginScreen = ({ navigation }) => {
       }
     } catch (error) {
       setErrorMessage('Đã có lỗi xảy ra. Vui lòng thử lại sau.');
+    } finally {
+      setIsLoading(false); 
     }
   };
 
@@ -63,7 +66,14 @@ const LoginScreen = ({ navigation }) => {
         secureTextEntry
       />
       {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
-      <Button title="Bắt đầu thôi!" onPress={validateLogin} />
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Đang đăng nhập...</Text>
+          <ActivityIndicator size="large" color="#0597D8" />
+        </View>
+      ) : (
+        <Button title="Bắt đầu thôi!" onPress={validateLogin} />
+      )}
       <TouchableOpacity>
         <Text style={styles.forgotPassword}>Tôi quên mật khẩu</Text>
       </TouchableOpacity>
@@ -119,6 +129,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 10,
     textAlign: 'center',
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#0597D8',
+    marginBottom: 10,
   },
 });
 

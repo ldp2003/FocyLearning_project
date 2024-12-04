@@ -38,7 +38,7 @@ export default function SettingScreen({ navigation }) {
   };
 
   const handleChangePassword = () => {
-    // Chuyển sang màn hình đổi mật khẩu
+
     navigation.navigate("ChangePassword");
   };
 
