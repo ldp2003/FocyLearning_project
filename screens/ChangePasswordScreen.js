@@ -6,43 +6,48 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
+  Image,
 } from "react-native";
 import { useUser } from "../contexts/UserContext";
 
 export default function ChangePasswordScreen({ navigation }) {
-  const { user, updatePassword } = useUser(); 
+  const { user, updatePassword } = useUser();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
- const handleChangePassword = async () => {
-  if (!currentPassword || !newPassword || !confirmPassword) {
-    Alert.alert("Lỗi", "Vui lòng điền đầy đủ thông tin.");
-    return;
-  }
+  const handleChangePassword = async () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      Alert.alert("Lỗi", "Vui lòng điền đầy đủ thông tin.");
+      return;
+    }
 
-  if (newPassword !== confirmPassword) {
-    Alert.alert("Lỗi", "Mật khẩu mới và xác nhận mật khẩu không khớp.");
-    return;
-  }
+    if (newPassword !== confirmPassword) {
+      Alert.alert("Lỗi", "Mật khẩu mới và xác nhận mật khẩu không khớp.");
+      return;
+    }
 
-  if (currentPassword !== user.password) { 
-    Alert.alert("Lỗi", "Mật khẩu cũ không chính xác.");
-    return;
-  }
+    if (currentPassword !== user.password) {
+      Alert.alert("Lỗi", "Mật khẩu cũ không chính xác.");
+      return;
+    }
 
-  try {
-    const updatedUser = await updatePassword(user.id, newPassword); 
-    Alert.alert("Thành công", "Đổi mật khẩu thành công!", [
-      { text: "OK", onPress: () => navigation.goBack() },
-    ]);
-  } catch (error) {
-    Alert.alert("Lỗi", error.message || "Đổi mật khẩu không thành công. Vui lòng thử lại.");
-  }
-};
+    try {
+      const updatedUser = await updatePassword(user.id, newPassword);
+      Alert.alert("Thành công", "Đổi mật khẩu thành công!", [
+        { text: "OK", onPress: () => navigation.goBack() },
+      ]);
+    } catch (error) {
+      Alert.alert("Lỗi", error.message || "Đổi mật khẩu không thành công. Vui lòng thử lại.");
+    }
+  };
 
   return (
     <View style={styles.container}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Text style={styles.backButtonText}>{"←"}</Text>
+        </TouchableOpacity>
+
       <Text style={styles.title}>Đổi mật khẩu</Text>
       <TextInput
         style={styles.input}
@@ -78,6 +83,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#e8f4fa",
     padding: 20,
     justifyContent: "center",
+  },
+  backButton: {
+    position: "absolute",
+    top: 40,
+    left: 20,
+  },
+  backButtonText: {
+    fontSize: 30,
+    color: "#0597D8",
+    fontWeight: "bold",
   },
   title: {
     fontSize: 24,
