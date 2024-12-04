@@ -79,7 +79,7 @@ const MainScreen = ({ navigation }) => {
       ...chatMessages,
       { sender: 'user', message: userMessage },
     ]);
-    setUserMessage('');
+    setUserMessage(''); 
     setIsSendingMessage(true);
 
     try {
