@@ -69,7 +69,7 @@ const LessonScreen = ({ navigation, route }) => {
         <Image
           source={require('../assets/fox-avatar.png')}
           style={styles.avatar}
-        />
+        /> 
         <View style={styles.headerIcons}>
           <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
             <Image source={require('../assets/avt.png')} style={styles.icon} />

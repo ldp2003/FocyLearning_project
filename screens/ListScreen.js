@@ -69,7 +69,7 @@ const ListScreen = ({ navigation, route }) => {
   const renderFeaturedLesson = ({ item }) => (
     <TouchableOpacity
       style={styles.featuredLesson}
-      onPress={() => navigation.navigate('Lesson')}>
+      onPress={() => navigation.navigate('Lesson', { lessonId: item.id })}>
       <Image source={{uri: item.image}} style={styles.featuredImage} />
       <Text style={styles.lessonTitle}>{item.title}</Text>
     </TouchableOpacity>

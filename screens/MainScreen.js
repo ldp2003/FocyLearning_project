@@ -130,7 +130,7 @@ const MainScreen = ({ navigation }) => {
       setIsSendingMessage(false);
     }
   };
-
+ 
   const renderFeaturedLesson = ({ item }) => (
     <TouchableOpacity
       style={styles.featuredLesson}

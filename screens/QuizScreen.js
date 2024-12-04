@@ -314,6 +314,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   ask: {
+    width:'70%',
     fontSize: 20,
     fontWeight: 'bold',
     color: '#9C9C9C',
@@ -321,6 +322,7 @@ const styles = StyleSheet.create({
     width: '80%',
   },
   questionText: {
+    width:'70%',
     fontSize: 25,
     fontWeight: 'bold',
     color: '#0597D8',
