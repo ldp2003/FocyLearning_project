@@ -14,33 +14,32 @@ export default function SettingScreen({ navigation }) {
   const { logout } = useUser();
 
   const handleLogout = () => {
-    console.log("Đang gọi handleLogout...");
-
     Alert.alert(
       "Xác nhận đăng xuất", 
       "Bạn có chắc chắn muốn đăng xuất?", 
       [
         {
           text: "Hủy",
-          onPress: () => {
-            console.log("Người dùng đã hủy đăng xuất");
-          },
           style: "cancel",
         },
         {
-          text: "Đồng ý", 
+          text: "Đồng ý",
           onPress: () => {
-            console.log("Đang đăng xuất...");
-            logout(); // xóa thông tin người dùng khỏi context
+            logout();
             navigation.reset({
-            index: 0,
-            routes: [{ name: "Start" }],
-          });
+              index: 0,
+              routes: [{ name: "Start" }],
+            });
           },
         },
       ],
-      { cancelable: false } 
+      { cancelable: false }
     );
+  };
+
+  const handleChangePassword = () => {
+    // Chuyển sang màn hình đổi mật khẩu
+    navigation.navigate("ChangePassword");
   };
 
   return (
@@ -69,16 +68,17 @@ export default function SettingScreen({ navigation }) {
       </View>
 
       <ScrollView style={styles.options}>
-        {[ 
+        {[
           { label: "Hồ sơ", icon: require("../assets/Vector.png") },
           { label: "Tùy chọn thanh toán", icon: require("../assets/Vector1.png") },
           { label: "Chứng chỉ của tôi", icon: require("../assets/Vector2.png") },
           { label: "Điều khoản & Điều kiện", icon: require("../assets/Vector3.png") },
           { label: "Trung tâm trợ giúp", icon: require("../assets/Vector4.png") },
           { label: "Mời bạn bè", icon: require("../assets/Vector5.png") },
+          { label: "Đổi mật khẩu", icon: require("../assets/padlock.png"), onPress: handleChangePassword }, // Mục mới
         ].map((item, index) => (
-          <TouchableOpacity key={index} style={styles.option}>
-            <Image style={styles.optionIcon} source={item.icon}/>
+          <TouchableOpacity key={index} style={styles.option} onPress={item.onPress}>
+            <Image style={styles.optionIcon} source={item.icon} />
             <Text style={styles.optionLabel}>{item.label}</Text>
             <Text style={styles.optionArrow}>›</Text>
           </TouchableOpacity>
@@ -92,6 +92,7 @@ export default function SettingScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  // Các style giống như trước
   container: {
     flex: 1,
     backgroundColor: "#e8f4fa",
@@ -151,9 +152,9 @@ const styles = StyleSheet.create({
     borderBottomColor: "#ddd",
   },
   optionIcon: {
-    color: "#0597D8",
-    width: 15,
-    height: 15,
+    width: 24,
+    height: 24,
+    marginRight: 10,
   },
   optionLabel: {
     flex: 1,

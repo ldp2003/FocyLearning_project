@@ -100,7 +100,7 @@ const MainScreen = ({ navigation }) => {
         },
         {
           headers: {
-            Authorization: `Bearer api_key`,
+            Authorization: `Bearer sk-svcacct-1utp1nW4j-gkYxTyN4rIYnNcQoADDHEAxkeLKPSSGsXPVLm67XzRJMlRgNaNT3BlbkFJ_2neETHN58crXUNJJ3sl7LpSObha0SWJlKY572OXtYYGNkPjn2hLqcGcnoIA`,
           },
         }
       );
@@ -231,7 +231,7 @@ const MainScreen = ({ navigation }) => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Những bài học nổi bật</Text>
-          <TouchableOpacity>
+          <TouchableOpacity  onPress={() => navigation.navigate('List')}>
             <Text style={styles.seeMore}>Xem thêm ></Text>
           </TouchableOpacity>
         </View>
