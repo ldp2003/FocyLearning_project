@@ -131,29 +131,81 @@ const MainScreen = ({ navigation }) => {
     }
   };
  
-  const handleSaveLesson = (lessonId) => {
-    console.log(`Lesson ${lessonId} saved!`);
+  const saveLessonToUser = async (userId, lessonId) => {
+    const userApiUrl = `https://6705f762031fd46a8311820f.mockapi.io/user/${userId}`;
+
+    try {
+      const userResponse = await axios.get(userApiUrl);
+      const user = userResponse.data;
+
+      if (!user.savedLessons) {
+        user.savedLessons = [];
+      }
+
+      if (!user.savedLessons.includes(lessonId)) {
+        user.savedLessons.push(lessonId);
+
+        await axios.put(userApiUrl, user);
+        console.log('ID bài học đã được lưu vào người dùng:', lessonId);
+      }
+    } catch (error) {
+      console.error('Lỗi khi lưu bài học vào người dùng:', error);
+    }
   };
 
-  const renderFeaturedLesson = ({ item }) => (
-    <TouchableOpacity
-      style={styles.featuredLesson}
-      onPress={() => navigation.navigate('Lesson', { lessonId: item.id })}
-    >
-      <Image source={{ uri: item.image }} style={styles.featuredImage} />
-      <View style={styles.lessonRow}>
-        <Text style={styles.lessonTitle} numberOfLines={2}>
-          {item.title}
-        </Text>
-        <TouchableOpacity onPress={() => handleSaveLesson(item.id)}>
-          <Image
-            source={require('../assets/save-instagram.png')}
-            style={styles.saveIcon}
-          />
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
-  );
+  const removeLessonFromUser = async (userId, lessonId) => {
+    const userApiUrl = `https://6705f762031fd46a8311820f.mockapi.io/user/${userId}`;
+
+    try {
+      const userResponse = await axios.get(userApiUrl);
+      const user = userResponse.data;
+
+      if (user.savedLessons && user.savedLessons.includes(lessonId)) {
+        user.savedLessons = user.savedLessons.filter(id => id !== lessonId);
+
+        await axios.put(userApiUrl, user);
+        console.log('ID bài học đã bị xóa khỏi danh sách:', lessonId);
+      }
+    } catch (error) {
+      console.error('Lỗi khi xóa bài học khỏi người dùng:', error);
+    }
+  };
+
+  const renderFeaturedLesson = ({ item }) => {
+    const isSaved = user.savedLessons && user.savedLessons.includes(item.id);
+
+    return (
+      <TouchableOpacity
+        style={styles.featuredLesson}
+        onPress={() => navigation.navigate('Lesson', { lessonId: item.id })}
+      >
+        <Image source={{ uri: item.image }} style={styles.featuredImage} />
+        <View style={styles.lessonRow}>
+          <Text style={styles.lessonTitle} numberOfLines={2}>
+            {item.title}
+          </Text>
+          <TouchableOpacity
+            onPress={() => {
+              if (isSaved) {
+                removeLessonFromUser(user.id, item.id);
+              } else {
+                saveLessonToUser(user.id, item.id);
+              }
+            }}
+          >
+            <Image
+              source={
+                isSaved
+                  ? require('../assets/bookmark.png')
+                  : require('../assets/save-instagram.png') 
+              }
+              style={styles.saveIcon}
+            />
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.container}>
