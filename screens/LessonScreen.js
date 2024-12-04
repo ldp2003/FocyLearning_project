@@ -23,12 +23,13 @@ const LessonScreen = ({ navigation, route }) => {
   useEffect(() => {
     const fetchLesson = async () => {
       try {
-        const response = await fetch(`https://6705f762031fd46a8311820f.mockapi.io/lesson/${lessonId}`);
+        const response = await fetch(
+          `https://6705f762031fd46a8311820f.mockapi.io/lesson/${lessonId}`
+        );
         const data = await response.json();
         setLesson(data);
         const lesson = user.lessons?.find((l) => l.lessonId === lessonId);
-        if(lesson)
-          setProgress(lesson.progress)
+        if (lesson) setProgress(lesson.progress);
       } catch (err) {
         setError('Không thể tải bài học. Vui lòng thử lại.');
       } finally {
@@ -51,7 +52,9 @@ const LessonScreen = ({ navigation, route }) => {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.retryButton}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.retryButton}>
           <Text style={styles.retryText}>Quay lại</Text>
         </TouchableOpacity>
       </View>
@@ -74,45 +77,40 @@ const LessonScreen = ({ navigation, route }) => {
         </View>
       </View>
       <ScrollView style={styles.scrollContainer}>
-        <Image
-          source={lesson.image}
-          style={styles.lessonImage}
-        />
-        <Text style={styles.lessonTitle}>
-          {lesson.title}
-        </Text>
+        <Image source={lesson.image} style={styles.lessonImage} />
+        <Text style={styles.lessonTitle}>{lesson.title}</Text>
         <View style={styles.tagsContainer}>
           {lesson.categories?.map((tag, index) => (
-            <Text key={index} style={styles.tag}>{tag}</Text>
+            <Text key={index} style={styles.tag}>
+              {tag}
+            </Text>
           ))}
         </View>
         <View style={styles.infoSection}>
           <Text style={styles.infoText}>Độ dài dự kiến</Text>
-          <Text style={styles.infoValue}>~{lesson.expectedLength} - {lesson.expectedLength+5} phút</Text>
+          <Text style={styles.infoValue}>
+            ~{lesson.expectedLength} - {lesson.expectedLength + 5} phút
+          </Text>
         </View>
         <View style={styles.infoSection}>
           <Text style={styles.infoText}>Tiến độ của bạn</Text>
-          {progress===0 ?
-          <Text style={styles.infoValue}>Bạn chưa học bài học này!</Text>
-          :<Text style={styles.infoValue}>{progress}%</Text>
-          }
-          
+          {progress === 0 ? (
+            <Text style={styles.infoValue}>Bạn chưa học bài học này!</Text>
+          ) : (
+            <Text style={styles.infoValue}>{progress}%</Text>
+          )}
         </View>
         <Text style={styles.descriptionTitle}>Giới thiệu về bài học</Text>
-        <Text style={styles.descriptionText}>
-          {lesson.description}
-        </Text>
-<<<<<<< HEAD
-        <TouchableOpacity style={styles.startButton} onPress={() => navigation.navigate('Quiz', {lesson: lesson })}>
-=======
-        <TouchableOpacity style={styles.startButton} onPress={() => navigation.navigate('Quiz')}>
->>>>>>> f650eb78735edd3cf2d6e9491bdd48fb88784d34
+        <Text style={styles.descriptionText}>{lesson.description}</Text>
+        <TouchableOpacity
+          style={styles.startButton}
+          onPress={() => navigation.navigate('Quiz', { lesson: lesson })}>
           <Text style={styles.startButtonText}>Bắt đầu thôi!</Text>
         </TouchableOpacity>
       </ScrollView>
       <View style={styles.footer}>
         <TouchableOpacity
-          onPress={() => navigation.navigate('Home')}
+          onPress={() => navigation.navigate('List', { focusSearchBar: true })}
           style={styles.footerItem}>
           <Image
             source={require('../assets/searchft.png')}
@@ -120,7 +118,7 @@ const LessonScreen = ({ navigation, route }) => {
           />
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => navigation.navigate('Home')}
+          onPress={() => navigation.navigate('List')}
           style={styles.footerItem}>
           <Image
             source={require('../assets/lesson.png')}
@@ -128,7 +126,7 @@ const LessonScreen = ({ navigation, route }) => {
           />
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => navigation.navigate('Lessons')}
+          onPress={() => navigation.navigate('Main')}
           style={styles.footerItem}>
           <Image
             source={require('../assets/Home.png')}
@@ -194,7 +192,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   backText: {
-    marginLeft:10,
+    marginLeft: 10,
     fontSize: 35,
     color: '#fff',
   },
@@ -205,8 +203,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingLeft: 10,
     paddingRight: 10,
-    paddingTop:40,
-    height:100
+    paddingTop: 40,
+    height: 100,
   },
   avatar: {
     width: 50,

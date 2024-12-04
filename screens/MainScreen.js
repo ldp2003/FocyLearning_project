@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,13 +8,26 @@ import {
   Image,
   ScrollView,
   FlatList,
+  Modal,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from 'react-native';
+import axios from 'axios';
 import { useUser } from '../contexts/UserContext';
 
-const MainScreen = ({ navigation, route }) => {
+const MainScreen = ({ navigation }) => {
   const { user } = useUser();
   const [featuredLessons, setFeaturedLessons] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isChatModalVisible, setIsChatModalVisible] = useState(false);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [userMessage, setUserMessage] = useState('');
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
+
+  const searchInputRef = useRef(null);
 
   const categoriesData = [
     { id: '1', title: 'Ngữ pháp', image: require('../assets/grammar.png') },
@@ -48,10 +61,80 @@ const MainScreen = ({ navigation, route }) => {
     fetchFeaturedLessons();
   }, []);
 
+  const handleSearchSubmit = () => {
+    navigation.navigate('List', { searchQuery });
+  };
+
+  const handleSearchClick = () => {
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  };
+
+  const handleChatMessageSend = async () => {
+    if (userMessage.trim() === '') return;
+
+    // Thêm tin nhắn người dùng vào chat
+    setChatMessages([
+      ...chatMessages,
+      { sender: 'user', message: userMessage },
+    ]);
+    setUserMessage(''); // Reset input
+    setIsSendingMessage(true);
+
+    try {
+      const MAX_HISTORY_LENGTH = 10;
+      const messages = chatMessages.slice(-MAX_HISTORY_LENGTH).map((msg) => ({
+        role: msg.sender === 'user' ? 'user' : 'assistant',
+        content: msg.message,
+      }));
+      messages.push({ role: 'user', content: userMessage });
+
+      const response = await axios.post(
+        'https://api.openai.com/v1/chat/completions',
+        {
+          model: 'gpt-3.5-turbo',
+          messages: messages,
+          max_tokens: 100,
+          temperature: 0.7,
+        },
+        {
+          headers: {
+            Authorization: `Bearer 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`,
+          },
+        }
+      );
+
+      // Lấy phản hồi từ bot
+      const botResponse = response.data.choices[0].message.content.trim();
+      setChatMessages((prevMessages) => [
+        ...prevMessages,
+        { sender: 'bot', message: botResponse },
+      ]);
+    } catch (error) {
+      if (error.response?.status === 429) {
+        setChatMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            sender: 'bot',
+            message: 'Hiện tại hạn mức đã vượt quá. Vui lòng thử lại sau.',
+          },
+        ]);
+      } else {
+        setChatMessages((prevMessages) => [
+          ...prevMessages,
+          { sender: 'bot', message: `Lỗi: ${error.message}` },
+        ]);
+      }
+    } finally {
+      setIsSendingMessage(false);
+    }
+  };
+
   const renderFeaturedLesson = ({ item }) => (
     <TouchableOpacity
       style={styles.featuredLesson}
-      onPress={() => navigation.navigate('Lesson',{lessonId: item.id, })}>
+      onPress={() => navigation.navigate('Lesson', { lessonId: item.id })}>
       <Image source={item.image} style={styles.featuredImage} />
       <Text style={styles.lessonTitle}>{item.title}</Text>
     </TouchableOpacity>
@@ -68,7 +151,7 @@ const MainScreen = ({ navigation, route }) => {
           style={styles.avatar}
         />
         <View style={styles.headerIcons}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => setIsChatModalVisible(true)}>
             <Image source={require('../assets/Bell.png')} style={styles.icon} />
           </TouchableOpacity>
         </View>
@@ -86,15 +169,16 @@ const MainScreen = ({ navigation, route }) => {
         </View>
 
         <TextInput
+          ref={searchInputRef}
           placeholder="Bạn cần tìm gì nhỉ"
           style={styles.searchBar}
           placeholderTextColor="#78C2E3"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          onSubmitEditing={handleSearchSubmit}
         />
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Danh mục</Text>
-          <TouchableOpacity>
-            <Text style={styles.seeMore}>Xem thêm ></Text>
-          </TouchableOpacity>
         </View>
         <FlatList
           data={categoriesData}
@@ -160,26 +244,79 @@ const MainScreen = ({ navigation, route }) => {
           style={styles.featuredLessons}
         />
       </ScrollView>
+
+      <Modal
+        visible={isChatModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setIsChatModalVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <KeyboardAvoidingView
+            style={styles.modalContainer}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+              <View style={styles.modalContent}>
+                <View style={styles.chatHeader}>
+                  <Text style={styles.chatTitle}>Chat với Bot AI</Text>
+                  <TouchableOpacity
+                    onPress={() => setIsChatModalVisible(false)}
+                    style={styles.closeButton}>
+                    <Text style={styles.closeButtonText}>Đóng</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <ScrollView style={styles.chatMessages}>
+                  {chatMessages.map((msg, index) => (
+                    <View
+                      key={index}
+                      style={
+                        msg.sender === 'user'
+                          ? styles.userMessage
+                          : styles.botMessage
+                      }>
+                      <Text style={styles.messageText}>{msg.message}</Text>
+                    </View>
+                  ))}
+                </ScrollView>
+
+                <View style={styles.chatInputContainer}>
+                  <TextInput
+                    style={styles.chatInput}
+                    value={userMessage}
+                    onChangeText={setUserMessage}
+                    placeholder="Nhập tin nhắn..."
+                  />
+                  <TouchableOpacity
+                    onPress={handleChatMessageSend}
+                    style={styles.sendButton}
+                    disabled={isSendingMessage}>
+                    <Text style={styles.sendButtonText}>
+                      {isSendingMessage ? 'Đang gửi...' : 'Gửi'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
+          </KeyboardAvoidingView>
+        </View>
+      </Modal>
+
       <View style={styles.footer}>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Home')}
-          style={styles.footerItem}>
+        <TouchableOpacity onPress={handleSearchClick} style={styles.footerItem}>
           <Image
             source={require('../assets/searchft.png')}
             style={styles.iconFooter}
           />
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => navigation.navigate('Home')}
+          onPress={() => navigation.navigate('List')}
           style={styles.footerItem}>
           <Image
             source={require('../assets/lesson.png')}
             style={styles.iconFooter}
           />
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Main')}
-          style={styles.footerItem}>
+        <TouchableOpacity style={styles.footerItem}>
           <Image
             source={require('../assets/Home.png')}
             style={styles.iconFooter}
@@ -394,6 +531,95 @@ const styles = StyleSheet.create({
   iconFooter: {
     width: 25,
     height: 25,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    width: '90%',
+    height: '80%',
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  modalContent: {
+    flex: 1,
+    padding: 16,
+  },
+  chatHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#CCC',
+    paddingBottom: 10,
+  },
+  chatTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  closeButton: {
+    padding: 5,
+  },
+  closeButtonText: {
+    color: '#0597D8',
+    fontWeight: 'bold',
+  },
+  chatMessages: {
+    flex: 1,
+    marginTop: 10,
+  },
+  userMessage: {
+    alignSelf: 'flex-end',
+    backgroundColor: '#DCF8C6',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 10,
+    maxWidth: '75%',
+  },
+  botMessage: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#F1F0F0',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 10,
+    maxWidth: '75%',
+  },
+  messageText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  chatInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#CCC',
+  },
+  chatInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#CCC',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    fontSize: 16,
+    backgroundColor: '#FFF',
+  },
+  sendButton: {
+    marginLeft: 10,
+    backgroundColor: '#0597D8',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  sendButtonText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
 

@@ -8,11 +8,11 @@ import {
 } from 'react-native';
 
 const ResultScreen = ({ route, navigation }) => {
-  const { lesson } = route.params;  // Nhận bài học từ trang QuizScreen
+  const { lesson, correctedAnswer } = route.params;  // Nhận bài học từ trang QuizScreen
   const totalQuestions = lesson.questions.length;
 
   // Giả sử bạn có logic để tính tỷ lệ đúng
-  const [correctAnswers, setCorrectAnswers] = useState(4); // Ví dụ đã trả lời đúng 4 câu
+  const [correctAnswers, setCorrectAnswers] = useState(correctedAnswer); // Ví dụ đã trả lời đúng 4 câu
   const progress = (correctAnswers / totalQuestions) * 100;
 
   return (
@@ -69,13 +69,13 @@ const ResultScreen = ({ route, navigation }) => {
 
       {/* Footer */}
       <View style={styles.footer}>
-        <TouchableOpacity onPress={() => navigation.navigate('Home')} style={styles.footerItem}>
+        <TouchableOpacity onPress={() => navigation.navigate('List', { focusSearchBar: true })} style={styles.footerItem}>
           <Image source={require('../assets/searchft.png')} style={styles.iconFooter} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Home')} style={styles.footerItem}>
+        <TouchableOpacity onPress={() => navigation.navigate('List')} style={styles.footerItem}>
           <Image source={require('../assets/lesson.png')} style={styles.iconFooter} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Lessons')} style={styles.footerItem}>
+        <TouchableOpacity onPress={() => navigation.navigate('Main')} style={styles.footerItem}>
           <Image source={require('../assets/Home.png')} style={styles.iconFooter} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={styles.footerItem}>

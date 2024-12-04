@@ -12,10 +12,10 @@ import QuizScreen from '../screens/QuizScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import SettingScreen from '../screens/SettingScreen';
 import ResultScreen from '../screens/ResultScreen';
+import ListScreen from '../screens/ListScreen';
 
 const Stack = createStackNavigator();
 
-const PERSISTENCE_KEY = "NAVIGATION_STATE";
 
 const AppNavigator = () => {
  
@@ -32,6 +32,7 @@ const AppNavigator = () => {
         <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="Settings" component={SettingScreen} />
         <Stack.Screen name="Result" component={ResultScreen} />
+        <Stack.Screen name="List" component={ListScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

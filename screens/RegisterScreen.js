@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
+import { useUser } from '../contexts/UserContext'; // Import Context để lưu thông tin người dùng
 
 const RegisterScreen = ({ navigation }) => {
   const [name, setName] = useState('');
@@ -13,38 +14,46 @@ const RegisterScreen = ({ navigation }) => {
     confirmPassword: '',
   });
 
+  const { login } = useUser(); // Hàm login từ Context
+
   const handleRegister = async () => {
-  setErrors({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
+    // Reset lỗi cũ
+    setErrors({
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    });
 
-  let formIsValid = true;
+    let formIsValid = true;
 
-  if (!name) {
-    formIsValid = false;
-    setErrors((prevErrors) => ({ ...prevErrors, name: 'Vui lòng nhập tên của bạn!' }));
-  }
+    // Kiểm tra hợp lệ
+    if (!name) {
+      formIsValid = false;
+      setErrors((prevErrors) => ({ ...prevErrors, name: 'Vui lòng nhập tên của bạn!' }));
+    }
 
-  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  if (!email || !emailRegex.test(email)) {
-    formIsValid = false;
-    setErrors((prevErrors) => ({ ...prevErrors, email: 'Vui lòng nhập email hợp lệ!' }));
-  }
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!email || !emailRegex.test(email)) {
+      formIsValid = false;
+      setErrors((prevErrors) => ({ ...prevErrors, email: 'Vui lòng nhập email hợp lệ!' }));
+    }
 
-  if (password.length < 6) {
-    formIsValid = false;
-    setErrors((prevErrors) => ({ ...prevErrors, password: 'Mật khẩu phải có ít nhất 6 ký tự!' }));
-  }
+    if (password.length < 6) {
+      formIsValid = false;
+      setErrors((prevErrors) => ({ ...prevErrors, password: 'Mật khẩu phải có ít nhất 6 ký tự!' }));
+    }
 
-  if (password !== confirmPassword) {
-    formIsValid = false;
-    setErrors((prevErrors) => ({ ...prevErrors, confirmPassword: 'Mật khẩu xác nhận không khớp!' }));
-  }
+    if (password !== confirmPassword) {
+      formIsValid = false;
+      setErrors((prevErrors) => ({ ...prevErrors, confirmPassword: 'Mật khẩu xác nhận không khớp!' }));
+    }
 
-  if (formIsValid) {
+    if (!formIsValid) {
+      return;
+    }
+
+    // Gửi dữ liệu tới MockAPI
     try {
       const response = await fetch('https://6705f762031fd46a8311820f.mockapi.io/user', {
         method: 'POST',
@@ -55,76 +64,24 @@ const RegisterScreen = ({ navigation }) => {
           name,
           email,
           password,
-          lessons: [
-            {
-              lessonId: 'lesson1',
-              title: 'Từ vựng giao tiếp thông dụng hiện nay',
-              progress: 50,
-              completedQuestions: [
-                {
-                  questionId: 'question1',
-                  answer: 'Xin chào!',
-                  isCorrect: true,
-                },
-                {
-                  questionId: 'question2',
-                  answer: 'Tôi là Focy!',
-                  isCorrect: true,
-                },
-              ],
-              status: 'completed',
-            },
-            {
-              lessonId: 'lesson2',
-              progress: 80,
-              completedQuestions: [
-                {
-                  questionId: 'question3',
-                  answer: 'Xin chào bạn!',
-                  isCorrect: true,
-                },
-              ],
-              status: 'in-progress',
-            },
-            {
-              lessonId: 'lesson3',
-              progress: 0,
-              completedQuestions: [],
-              status: 'not-started',
-            },
-          ],
-          lastLesson: {
-            lessonId: 'lesson2',
-            status: 'in-progress',
-            title: 'Từ vựng giao tiếp thông dụng hiện nay',
-            progress: 80,
-            completedQuestions: [
-              {
-                questionId: 'question3',
-                answer: 'Xin chào bạn!',
-                isCorrect: true,
-              },
-            ],
-          },
         }),
       });
 
+      const result = await response.json();
+      console.log('Kết quả:', result);
+
       if (response.ok) {
-        const userData = await response.json();
-        console.log('Đăng ký thành công: ', userData);
-        navigation.navigate('Main');
+        Alert.alert('Thành công', 'Đăng ký thành công!');
+        login(result); // Lưu thông tin vào Context
+        navigation.navigate('Main'); // Chuyển tới màn hình chính
       } else {
-        const errorData = await response.json();
-        console.error('Lỗi API: ', errorData);
-        alert('Đã xảy ra lỗi khi đăng ký. Vui lòng thử lại.');
+        Alert.alert('Lỗi', 'Không thể đăng ký. Thử lại sau.');
       }
     } catch (error) {
-      console.error('Lỗi khi gửi yêu cầu: ', error);
-      alert('Đã có lỗi xảy ra. Vui lòng thử lại sau.');
+      console.error('Lỗi:', error);
+      Alert.alert('Lỗi', 'Không thể kết nối tới server.');
     }
-  }
-};
-
+  };
 
   return (
     <View style={styles.container}>
@@ -135,7 +92,7 @@ const RegisterScreen = ({ navigation }) => {
       <Image source={require('../assets/fox-logo.png')} style={styles.logo} />
 
       <TextInput
-        placeholder="Tên của cậu"
+        placeholder="Tên của bạn"
         style={styles.input}
         value={name}
         onChangeText={setName}

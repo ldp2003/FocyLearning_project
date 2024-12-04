@@ -15,7 +15,7 @@ export const UserProvider = ({ children }) => {
   };
 
   const logout = () => {
-    setUser(null); // Đăng xuất và reset user
+    setUser(null); // Xóa thông tin người dùng khỏi trạng thái
   };
 
    

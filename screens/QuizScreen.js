@@ -12,44 +12,14 @@ import { useUser } from '../contexts/UserContext';
 
 const QuizScreen = ({ navigation, route }) => {
   // Lesson data
-<<<<<<< HEAD
   const { lesson } = route.params;
   const { user, updateUser } = useUser();
-=======
-  const lesson = {
-    title: 'Từ vựng giao tiếp thông dụng hiện nay',
-    questions: [
-      {
-        type: 'fill-in-the-blank',
-        question: 'Hello!',
-        correctAnswer: 'Xin chào!',
-        placeholder: 'Nhập ở đây',
-      },
-      {
-        type: 'multiple-choice',
-        question: 'I am Focy!',
-        options: [
-          'Tôi là Focy!',
-          'Tôi bị Focy!',
-          'Cậu là Focy!',
-          'Tôi chơi Focy!',
-        ],
-        correctAnswer: 'Tôi là Focy!',
-      },
-      {
-            type: 'multiple-choice',
-            question: 'Hello, I ... Focy!',
-            options: ['am', 'is', 'are'],
-            correctAnswer: 'am',
-          },
-    ],
-  };
->>>>>>> f650eb78735edd3cf2d6e9491bdd48fb88784d34
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswer, setUserAnswer] = useState('');
   const [selectedAnswer, setSelectedAnswer] = useState('');
   const [isCorrect, setIsCorrect] = useState(null);
+  const [correctedAnswer, setCorrectAnswer] = useState(0);
 
   const currentQuestion = lesson.questions[currentQuestionIndex];
 
@@ -73,7 +43,7 @@ const QuizScreen = ({ navigation, route }) => {
         const questionIndex = l.completedQuestions.findIndex(
           (q) => q.questionId === userAnswerData.questionId
         );
-        console.log(userAnswerData)
+        console.log(userAnswerData);
         // Nếu câu hỏi đã có trong completedQuestions, cập nhật câu trả lời
         const updatedCompletedQuestions =
           questionIndex !== -1
@@ -123,6 +93,7 @@ const QuizScreen = ({ navigation, route }) => {
       }
       const updatedUser = { ...user, lessons: updatedLessons };
       updateUser(updatedUser);
+
       // Reset trạng thái câu trả lời người dùng
       setUserAnswer('');
       setSelectedAnswer('');
@@ -130,7 +101,7 @@ const QuizScreen = ({ navigation, route }) => {
       // Chuyển sang câu hỏi tiếp theo hoặc hiển thị kết quả
       if (currentQuestionIndex === lesson.questions.length - 1) {
         // Hiển thị màn hình kết quả nếu đây là câu hỏi cuối
-        navigation.navigate('Result', { lesson });
+        navigation.navigate('Result', { lesson, correctedAnswer });
       } else {
         // Chuyển sang câu hỏi tiếp theo
         setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
@@ -142,21 +113,32 @@ const QuizScreen = ({ navigation, route }) => {
   };
 
   const validateAnswer = () => {
+    let isAnswerCorrect = false;
+
     if (currentQuestion.type === 'fill-in-the-blank') {
       const cleanUserAnswer = userAnswer
         .trim()
         .toLowerCase()
-        .replace(/[^a-zA-Z0-9\s]/g, '')
-        .replace(/\s+/g, ' ');
+        .replace(/[^\w\s]/g, '') // Loại bỏ tất cả dấu câu
+        .replace(/\s+/g, ' '); // Thay thế nhiều khoảng trắng bằng một khoảng trắng
+
+      // Chuẩn hóa chuỗi đáp án đúng (loại bỏ dấu câu, chuyển thành chữ thường)
       const cleanCorrectAnswer = currentQuestion.correctAnswer
         .trim()
         .toLowerCase()
-        .replace(/[^a-zA-Z0-9\s]/g, '')
-        .replace(/\s+/g, ' ');
+        .replace(/[^\w\s]/g, '') // Loại bỏ tất cả dấu câu
+        .replace(/\s+/g, ' '); // Thay thế nhiều khoảng trắng bằng một khoảng trắng
 
-      setIsCorrect(cleanUserAnswer === cleanCorrectAnswer);
+      isAnswerCorrect = cleanUserAnswer === cleanCorrectAnswer;
     } else if (currentQuestion.type === 'multiple-choice') {
-      setIsCorrect(selectedAnswer === currentQuestion.correctAnswer);
+      isAnswerCorrect = selectedAnswer === currentQuestion.correctAnswer;
+    }
+
+    setIsCorrect(isAnswerCorrect);
+
+    // Nếu đúng, tăng số câu trả lời đúng
+    if (isAnswerCorrect) {
+      setCorrectAnswer((prev) => prev + 1);
     }
   };
 
@@ -263,7 +245,7 @@ const QuizScreen = ({ navigation, route }) => {
       {/* Footer */}
       <View style={styles.footer}>
         <TouchableOpacity
-          onPress={() => navigation.navigate('Home')}
+          onPress={() => navigation.navigate('List', { focusSearchBar: true })}
           style={styles.footerItem}>
           <Image
             source={require('../assets/searchft.png')}
@@ -271,7 +253,7 @@ const QuizScreen = ({ navigation, route }) => {
           />
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => navigation.navigate('Home')}
+          onPress={() => navigation.navigate('List')}
           style={styles.footerItem}>
           <Image
             source={require('../assets/lesson.png')}
@@ -279,7 +261,7 @@ const QuizScreen = ({ navigation, route }) => {
           />
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => navigation.navigate('Lessons')}
+          onPress={() => navigation.navigate('Main')}
           style={styles.footerItem}>
           <Image
             source={require('../assets/Home.png')}

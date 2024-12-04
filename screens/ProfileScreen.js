@@ -1,30 +1,35 @@
 import React from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from "react-native";
 
-export default function App() {
+export default function App({ navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
-          <Text style={styles.backButtonText}>←</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Text style={styles.backText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Hồ sơ</Text>
-      </View>
-
-      <View style={styles.banner}>
-        <Image source={require('../assets/bia.png')} style={styles.bannerImage}/>
-        <View style={styles.profilePicture}>
-          <Image
-            source={require('../assets/avt.png')}
-            style={styles.profileImage}
-          />
+        <Image
+          source={require('../assets/fox-avatar.png')}
+          style={styles.avatar}
+        />
+        <View style={styles.headerIcons}>
+          <TouchableOpacity>
+            <Image source={require('../assets/Bell.png')} style={styles.icon} />
+          </TouchableOpacity>
         </View>
       </View>
 
+      {/* Banner and Profile Picture */}
+      <View style={styles.banner}>
+        <Image source={require('../assets/bia.png')} style={styles.bannerImage} />
+        <View style={styles.profilePicture}>
+          <Image source={require('../assets/avt.png')} style={styles.profileImage} />
+        </View>
+      </View>
+
+      {/* Stats Section */}
       <View style={styles.stats}>
-        <Text style={styles.name}>
-          J97
-        </Text>
+        <Text style={styles.name}>J97</Text>
       </View>
       <View style={styles.stats}>
         <View style={styles.statBox}>
@@ -41,18 +46,18 @@ export default function App() {
         </View>
       </View>
 
+      {/* Lessons Section */}
       <ScrollView style={styles.lessons}>
         <Text style={styles.sectionTitle}>Bài học đã lưu</Text>
 
+        {/* Lesson Card */}
         <View style={styles.lessonCard}>
           <Image
             source={{ uri: "https://via.placeholder.com/150" }}
             style={styles.lessonImage}
           />
           <View style={styles.lessonInfo}>
-            <Text style={styles.lessonTitle}>
-              Từ vựng giao tiếp thông dụng hiện nay
-            </Text>
+            <Text style={styles.lessonTitle}>Từ vựng giao tiếp thông dụng hiện nay</Text>
             <Text style={styles.lessonProgressText}>Tiến độ: 100%</Text>
             <View style={styles.progressBar}>
               <View style={styles.progress} />
@@ -71,46 +76,22 @@ export default function App() {
         </View>
       </ScrollView>
 
+      {/* Footer */}
       <View style={styles.footer}>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Home')}
-          style={styles.footerItem}>
-          <Image
-            source={require('../assets/searchft.png')}
-            style={styles.iconFooter}
-          />
+        <TouchableOpacity onPress={() => navigation.navigate('List', { focusSearchBar: true })} style={styles.footerItem}>
+          <Image source={require('../assets/searchft.png')} style={styles.iconFooter} />
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Home')}
-          style={styles.footerItem}>
-          <Image
-            source={require('../assets/lesson.png')}
-            style={styles.iconFooter}
-          />
+        <TouchableOpacity onPress={() => navigation.navigate('List')} style={styles.footerItem}>
+          <Image source={require('../assets/lesson.png')} style={styles.iconFooter} />
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Lessons')}
-          style={styles.footerItem}>
-          <Image
-            source={require('../assets/Home.png')}
-            style={styles.iconFooter}
-          />
+        <TouchableOpacity onPress={() => navigation.navigate('Main')} style={styles.footerItem}>
+          <Image source={require('../assets/Home.png')} style={styles.iconFooter} />
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Profile')}
-          style={styles.footerItem}>
-          <Image
-            source={require('../assets/userft.png')}
-            style={styles.iconFooter}
-          />
+        <TouchableOpacity style={styles.footerItem}>
+          <Image source={require('../assets/userft.png')} style={styles.iconFooter} />
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Settings')}
-          style={styles.footerItem}>
-          <Image
-            source={require('../assets/settingft.png')}
-            style={styles.iconFooter}
-          />
+        <TouchableOpacity onPress={() => navigation.navigate('Settings')} style={styles.footerItem}>
+          <Image source={require('../assets/settingft.png')} style={styles.iconFooter} />
         </TouchableOpacity>
       </View>
     </View>
@@ -122,28 +103,38 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#e8f4fa",
   },
+  backText: {
+    marginLeft:10,
+    fontSize: 35,
+    color: '#fff',
+  },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 10,
-    backgroundColor: "#ffffff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+    backgroundColor: '#0597D8',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop:40,
+    height:100
   },
-  backButton: {
-    marginRight: 10,
+  avatar: {
+    width: 50,
+    height: 50,
   },
-  backButtonText: {
-    fontSize: 20,
+  headerIcons: {
+    flexDirection: 'row',
   },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
+  icon: {
+    width: 30,
+    height: 30,
+    marginLeft: 10,
   },
   banner: {
     height: 170,
     alignItems: "center",
     position: "relative", 
+    marginBottom: 20,
   },
   bannerImage: {
     width: "90%", 

@@ -6,11 +6,15 @@ import { useUser } from '../contexts/UserContext'; // Import context
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState(''); // Thêm trạng thái cho lỗi
   const { login } = useUser(); // Truy cập vào hàm login từ context
 
   const validateLogin = async () => {
+    // Reset lỗi mỗi lần bấm nút
+    setErrorMessage('');
+
     if (!email || !password) {
-      Alert.alert('Lỗi', 'Vui lòng nhập email và mật khẩu');
+      setErrorMessage('Vui lòng nhập email và mật khẩu.');
       return;
     }
 
@@ -19,18 +23,19 @@ const LoginScreen = ({ navigation }) => {
       if (response.ok) {
         const users = await response.json();
         const user = users.find(user => user.email === email && user.password === password);
+
         if (user) {
           // Lưu thông tin người dùng vào context
           login(user);
           navigation.navigate('Main');
         } else {
-          Alert.alert('Lỗi', 'Email hoặc mật khẩu không chính xác');
+          setErrorMessage('Email hoặc mật khẩu không chính xác.');
         }
       } else {
-        Alert.alert('Lỗi', 'Không thể kết nối tới server');
+        setErrorMessage('Không thể kết nối tới server.');
       }
     } catch (error) {
-      Alert.alert('Lỗi', 'Đã có lỗi xảy ra. Vui lòng thử lại sau');
+      setErrorMessage('Đã có lỗi xảy ra. Vui lòng thử lại sau.');
     }
   };
 
@@ -46,7 +51,7 @@ const LoginScreen = ({ navigation }) => {
         style={styles.input}
         value={email}
         onChangeText={setEmail}
-        placeholderTextColor='#78C2E3'
+        placeholderTextColor="#78C2E3"
         keyboardType="email-address"
       />
       <TextInput
@@ -54,9 +59,10 @@ const LoginScreen = ({ navigation }) => {
         style={styles.input}
         value={password}
         onChangeText={setPassword}
-        placeholderTextColor='#78C2E3'
+        placeholderTextColor="#78C2E3"
         secureTextEntry
       />
+      {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
       <Button title="Bắt đầu thôi!" onPress={validateLogin} />
       <TouchableOpacity>
         <Text style={styles.forgotPassword}>Tôi quên mật khẩu</Text>
@@ -107,6 +113,12 @@ const styles = StyleSheet.create({
     color: '#0597D8',
     marginTop: 20,
     fontSize: 16,
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 14,
+    marginBottom: 10,
+    textAlign: 'center',
   },
 });
 

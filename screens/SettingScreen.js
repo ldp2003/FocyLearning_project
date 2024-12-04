@@ -6,14 +6,48 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  Alert
 } from "react-native";
+import { useUser } from "../contexts/UserContext"; // Import context
 
 export default function SettingScreen({ navigation }) {
+  const { logout } = useUser(); // Lấy hàm logout từ context
+
+  const handleLogout = () => {
+    console.log("Đang gọi handleLogout...");
+
+    Alert.alert(
+      "Xác nhận đăng xuất", // Tiêu đề
+      "Bạn có chắc chắn muốn đăng xuất?", // Nội dung
+      [
+        {
+          text: "Hủy", // Button "Cancel"
+          onPress: () => {
+            console.log("Người dùng đã hủy đăng xuất");
+          },
+          style: "cancel",
+        },
+        {
+          text: "Đồng ý", // Button "OK"
+          onPress: () => {
+            console.log("Đang đăng xuất...");
+            logout(); // Gọi logout để xóa thông tin người dùng khỏi context
+            navigation.reset({
+            index: 0,
+            routes: [{ name: "Start" }], // Chỉ để lại màn hình Login
+          });
+          },
+        },
+      ],
+      { cancelable: false } // Không cho phép tắt hộp thoại bằng cách nhấn bên ngoài
+    );
+  };
+
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Image style={styles.backButtonText} source={require('../assets/arrow_back.png')}/>
         </TouchableOpacity>
         <Image
@@ -35,7 +69,7 @@ export default function SettingScreen({ navigation }) {
       </View>
 
       <ScrollView style={styles.options}>
-        {[
+        {[ 
           { label: "Hồ sơ", icon: require("../assets/Vector.png") },
           { label: "Tùy chọn thanh toán", icon: require("../assets/Vector1.png") },
           { label: "Chứng chỉ của tôi", icon: require("../assets/Vector2.png") },
@@ -44,12 +78,12 @@ export default function SettingScreen({ navigation }) {
           { label: "Mời bạn bè", icon: require("../assets/Vector5.png") },
         ].map((item, index) => (
           <TouchableOpacity key={index} style={styles.option}>
-            <Text style={styles.optionIcon}>{item.icon}</Text>
+            <Image style={styles.optionIcon} source={item.icon}/>
             <Text style={styles.optionLabel}>{item.label}</Text>
             <Text style={styles.optionArrow}>›</Text>
           </TouchableOpacity>
         ))}
-        <TouchableOpacity style={styles.logoutButton} onPress={() => navigation.navigate('Login')}>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutText}>Đăng xuất</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -117,9 +151,9 @@ const styles = StyleSheet.create({
     borderBottomColor: "#ddd",
   },
   optionIcon: {
-    fontSize: 20,
     color: "#0597D8",
-    width: 30,
+    width: 15,
+    height: 15,
   },
   optionLabel: {
     flex: 1,
