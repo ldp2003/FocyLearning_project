@@ -131,12 +131,27 @@ const MainScreen = ({ navigation }) => {
     }
   };
  
+  const handleSaveLesson = (lessonId) => {
+    console.log(`Lesson ${lessonId} saved!`);
+  };
+
   const renderFeaturedLesson = ({ item }) => (
     <TouchableOpacity
       style={styles.featuredLesson}
-      onPress={() => navigation.navigate('Lesson', { lessonId: item.id })}>
-      <Image source={{uri: item.image}} style={styles.featuredImage} />
-      <Text style={styles.lessonTitle}>{item.title}</Text>
+      onPress={() => navigation.navigate('Lesson', { lessonId: item.id })}
+    >
+      <Image source={{ uri: item.image }} style={styles.featuredImage} />
+      <View style={styles.lessonRow}>
+        <Text style={styles.lessonTitle} numberOfLines={2}>
+          {item.title}
+        </Text>
+        <TouchableOpacity onPress={() => handleSaveLesson(item.id)}>
+          <Image
+            source={require('../assets/save-instagram.png')}
+            style={styles.saveIcon}
+          />
+        </TouchableOpacity>
+      </View>
     </TouchableOpacity>
   );
 
@@ -448,12 +463,6 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 20,
   },
-  lessonTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#0597D8',
-    marginBottom: 10,
-  },
   progressContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -504,6 +513,16 @@ const styles = StyleSheet.create({
     padding: 10,
     alignItems: 'center',
     marginRight: 10,
+    minHeight: 140,
+    justifyContent: 'space-between',
+  },
+  lessonTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#0597D8',
+    lineHeight: 18,
+    maxHeight: 54,
+    overflow: 'hidden',
   },
   featuredImage: {
     width: '100%',
@@ -620,6 +639,16 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+ lessonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  saveIcon: {
+    width: 20,
+    height: 20,
   },
 });
 
