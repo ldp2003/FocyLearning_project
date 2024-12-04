@@ -13,8 +13,8 @@ export default function App({ navigation }) {
           style={styles.avatar}
         />
         <View style={styles.headerIcons}>
-          <TouchableOpacity>
-            <Image source={require('../assets/Bell.png')} style={styles.icon} />
+          <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+            <Image source={require('../assets/avt.png')} style={styles.icon} />
           </TouchableOpacity>
         </View>
       </View>

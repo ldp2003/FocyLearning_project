@@ -55,8 +55,8 @@ export default function SettingScreen({ navigation }) {
           style={styles.logo}
         />
         <View style={styles.headerIcons}>
-          <TouchableOpacity>
-            <Image style={styles.icon} source={require('../assets/Bell.png')}/>
+          <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+            <Image source={require('../assets/avt.png')} style={styles.icon} />
           </TouchableOpacity>
         </View>
       </View>

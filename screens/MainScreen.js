@@ -143,16 +143,16 @@ const MainScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity>
-          <Image source={require('../assets/menu.png')} style={styles.icon} />
-        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setIsChatModalVisible(true)}>
+            <Image source={require('../assets/chat.png')} style={styles.icon} />
+          </TouchableOpacity>
         <Image
           source={require('../assets/fox-avatar.png')}
           style={styles.avatar}
         />
         <View style={styles.headerIcons}>
-          <TouchableOpacity onPress={() => setIsChatModalVisible(true)}>
-            <Image source={require('../assets/Bell.png')} style={styles.icon} />
+          <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+            <Image source={require('../assets/avt.png')} style={styles.icon} />
           </TouchableOpacity>
         </View>
       </View>
