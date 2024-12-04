@@ -92,7 +92,6 @@ export default function SettingScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  // Các style giống như trước
   container: {
     flex: 1,
     backgroundColor: "#e8f4fa",

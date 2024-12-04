@@ -63,7 +63,7 @@ const LessonScreen = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => navigation.navigate('Main')}>
           <Text style={styles.backText}>←</Text>
         </TouchableOpacity>
         <Image

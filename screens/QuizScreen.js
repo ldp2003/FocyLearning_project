@@ -133,7 +133,6 @@ const QuizScreen = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.backButtonText}>←</Text>
@@ -149,7 +148,6 @@ const QuizScreen = ({ navigation, route }) => {
         </View>
       </View>
 
-      {/* Progress Bar */}
       <View style={styles.progressBar}>
         <View
           style={{
@@ -166,7 +164,6 @@ const QuizScreen = ({ navigation, route }) => {
         <Text style={styles.lesson}>{lesson.title}</Text>
       </View>
 
-      {/* Question Content */}
       <View style={styles.quizContainer}>
         <View style={styles.questionContainer}>
           <Image
@@ -319,7 +316,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#9C9C9C',
     textAlign: 'center',
-    width: '80%',
   },
   questionText: {
     width:'70%',
@@ -327,7 +323,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#0597D8',
     textAlign: 'center',
-    width: '80%',
+
   },
   textInput: {
     borderWidth: 1,
