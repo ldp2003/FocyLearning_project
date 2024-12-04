@@ -26,13 +26,13 @@ export default function ChangePasswordScreen({ navigation }) {
     return;
   }
 
-  if (currentPassword !== user.password) { // So sánh với mật khẩu hiện tại
+  if (currentPassword !== user.password) { 
     Alert.alert("Lỗi", "Mật khẩu cũ không chính xác.");
     return;
   }
 
   try {
-    const updatedUser = await updatePassword(user.id, newPassword); // Gửi yêu cầu cập nhật
+    const updatedUser = await updatePassword(user.id, newPassword); 
     Alert.alert("Thành công", "Đổi mật khẩu thành công!", [
       { text: "OK", onPress: () => navigation.goBack() },
     ]);

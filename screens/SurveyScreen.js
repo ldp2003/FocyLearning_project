@@ -36,25 +36,32 @@ const questions = [
   }
 ];
 
-const SurveyScreen = ({ navigation }) => {
+const SurveyScreen = ({ navigation , route}) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedOption, setSelectedOption] = useState(null);
+  const [surveyResults, setSurveyResults] = useState({});
 
   const handleNext = () => {
+    if (questions[currentStep].options) {
+      setSurveyResults((prevResults) => ({
+        ...prevResults,
+        [questions[currentStep].question]: selectedOption,
+      }));
+    }
+
     if (currentStep < questions.length - 1) {
       setCurrentStep(currentStep + 1);
-      setSelectedOption(null);
+      setSelectedOption(surveyResults[currentStep + 1] || null);
     } else {
-      navigation.navigate('Register'); 
+      navigation.navigate('Register', surveyResults); 
     }
   };
 
   const handleBack = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
-      setSelectedOption(null);
-    }
-    else {
+      setSelectedOption(surveyResults[currentStep - 1] || null);
+    } else {
       navigation.goBack();
     }
   };
