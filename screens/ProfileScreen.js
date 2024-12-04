@@ -19,7 +19,6 @@ export default function App({ navigation }) {
         </View>
       </View>
 
-      {/* Banner and Profile Picture */}
       <View style={styles.banner}>
         <Image source={require('../assets/bia.png')} style={styles.bannerImage} />
         <View style={styles.profilePicture}>
@@ -27,7 +26,6 @@ export default function App({ navigation }) {
         </View>
       </View>
 
-      {/* Stats Section */}
       <View style={styles.stats}>
         <Text style={styles.name}>J97</Text>
       </View>
@@ -46,11 +44,9 @@ export default function App({ navigation }) {
         </View>
       </View>
 
-      {/* Lessons Section */}
       <ScrollView style={styles.lessons}>
         <Text style={styles.sectionTitle}>Bài học đã lưu</Text>
 
-        {/* Lesson Card */}
         <View style={styles.lessonCard}>
           <Image
             source={{ uri: "https://via.placeholder.com/150" }}
@@ -76,7 +72,6 @@ export default function App({ navigation }) {
         </View>
       </ScrollView>
 
-      {/* Footer */}
       <View style={styles.footer}>
         <TouchableOpacity onPress={() => navigation.navigate('List', { focusSearchBar: true })} style={styles.footerItem}>
           <Image source={require('../assets/searchft.png')} style={styles.iconFooter} />

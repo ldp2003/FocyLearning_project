@@ -71,13 +71,13 @@ const LessonScreen = ({ navigation, route }) => {
           style={styles.avatar}
         />
         <View style={styles.headerIcons}>
-          <TouchableOpacity>
-            <Image source={require('../assets/Bell.png')} style={styles.icon} />
+          <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+            <Image source={require('../assets/avt.png')} style={styles.icon} />
           </TouchableOpacity>
         </View>
       </View>
       <ScrollView style={styles.scrollContainer}>
-        <Image source={lesson.image} style={styles.lessonImage} />
+        <Image source={{uri: lesson.image}} style={styles.lessonImage} />
         <Text style={styles.lessonTitle}>{lesson.title}</Text>
         <View style={styles.tagsContainer}>
           {lesson.categories?.map((tag, index) => (

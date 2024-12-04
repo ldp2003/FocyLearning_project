@@ -14,7 +14,7 @@ const RegisterScreen = ({ navigation }) => {
     confirmPassword: '',
   });
 
-  const { login } = useUser(); // Hàm login từ Context
+  const { login } = useUser(); 
 
   const handleRegister = async () => {
     // Reset lỗi cũ
@@ -73,7 +73,7 @@ const RegisterScreen = ({ navigation }) => {
       if (response.ok) {
         Alert.alert('Thành công', 'Đăng ký thành công!');
         login(result); // Lưu thông tin vào Context
-        navigation.navigate('Main'); // Chuyển tới màn hình chính
+        navigation.navigate('Main');
       } else {
         Alert.alert('Lỗi', 'Không thể đăng ký. Thử lại sau.');
       }

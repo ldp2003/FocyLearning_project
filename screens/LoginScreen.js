@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
 import Button from '../components/button';
-import { useUser } from '../contexts/UserContext'; // Import context
+import { useUser } from '../contexts/UserContext';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState(''); // Thêm trạng thái cho lỗi
-  const { login } = useUser(); // Truy cập vào hàm login từ context
+  const [errorMessage, setErrorMessage] = useState(''); 
+  const { login } = useUser();
 
   const validateLogin = async () => {
     // Reset lỗi mỗi lần bấm nút

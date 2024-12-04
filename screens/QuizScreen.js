@@ -11,7 +11,6 @@ import { useRoute } from '@react-navigation/native';
 import { useUser } from '../contexts/UserContext';
 
 const QuizScreen = ({ navigation, route }) => {
-  // Lesson data
   const { lesson } = route.params;
   const { user, updateUser } = useUser();
 
@@ -24,7 +23,6 @@ const QuizScreen = ({ navigation, route }) => {
   const currentQuestion = lesson.questions[currentQuestionIndex];
 
   const handleNextQuestion = async () => {
-    // Lấy câu trả lời của người dùng và kiểm tra đúng/sai
     const userAnswerData = {
       questionId: currentQuestion.id,
       answer:
@@ -74,10 +72,7 @@ const QuizScreen = ({ navigation, route }) => {
       return l;
     });
 
-    // Log kết quả sau map()
-    console.log('Updated Lessons:', updatedLessons);
     try {
-      // Gửi yêu cầu cập nhật lessons của user
       const response = await fetch(
         `https://6705f762031fd46a8311820f.mockapi.io/user/${user.id}`,
         {
@@ -94,16 +89,12 @@ const QuizScreen = ({ navigation, route }) => {
       const updatedUser = { ...user, lessons: updatedLessons };
       updateUser(updatedUser);
 
-      // Reset trạng thái câu trả lời người dùng
       setUserAnswer('');
       setSelectedAnswer('');
       setIsCorrect(null);
-      // Chuyển sang câu hỏi tiếp theo hoặc hiển thị kết quả
       if (currentQuestionIndex === lesson.questions.length - 1) {
-        // Hiển thị màn hình kết quả nếu đây là câu hỏi cuối
         navigation.navigate('Result', { lesson, correctedAnswer });
       } else {
-        // Chuyển sang câu hỏi tiếp theo
         setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
       }
     } catch (error) {
@@ -122,12 +113,11 @@ const QuizScreen = ({ navigation, route }) => {
         .replace(/[^\w\s]/g, '') // Loại bỏ tất cả dấu câu
         .replace(/\s+/g, ' '); // Thay thế nhiều khoảng trắng bằng một khoảng trắng
 
-      // Chuẩn hóa chuỗi đáp án đúng (loại bỏ dấu câu, chuyển thành chữ thường)
       const cleanCorrectAnswer = currentQuestion.correctAnswer
         .trim()
         .toLowerCase()
-        .replace(/[^\w\s]/g, '') // Loại bỏ tất cả dấu câu
-        .replace(/\s+/g, ' '); // Thay thế nhiều khoảng trắng bằng một khoảng trắng
+        .replace(/[^\w\s]/g, '')
+        .replace(/\s+/g, ' '); 
 
       isAnswerCorrect = cleanUserAnswer === cleanCorrectAnswer;
     } else if (currentQuestion.type === 'multiple-choice') {
@@ -136,7 +126,6 @@ const QuizScreen = ({ navigation, route }) => {
 
     setIsCorrect(isAnswerCorrect);
 
-    // Nếu đúng, tăng số câu trả lời đúng
     if (isAnswerCorrect) {
       setCorrectAnswer((prev) => prev + 1);
     }
@@ -154,8 +143,8 @@ const QuizScreen = ({ navigation, route }) => {
           style={styles.avatar}
         />
         <View style={styles.headerIcons}>
-          <TouchableOpacity>
-            <Image source={require('../assets/Bell.png')} style={styles.icon} />
+          <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+            <Image source={require('../assets/avt.png')} style={styles.icon} />
           </TouchableOpacity>
         </View>
       </View>
@@ -195,7 +184,6 @@ const QuizScreen = ({ navigation, route }) => {
           </View>
         </View>
 
-        {/* Render based on question type */}
         {currentQuestion.type === 'fill-in-the-blank' && (
           <TextInput
             style={styles.textInput}
@@ -221,14 +209,12 @@ const QuizScreen = ({ navigation, route }) => {
           </View>
         )}
 
-        {/* Feedback */}
         {isCorrect !== null && (
           <Text style={styles.feedbackText}>
             {isCorrect ? 'Chính xác!' : 'Sai rồi!'}
           </Text>
         )}
 
-        {/* "Next" or "Submit" Button */}
         <TouchableOpacity
           style={styles.submitButton}
           onPress={isCorrect === null ? validateAnswer : handleNextQuestion}>
@@ -242,7 +228,6 @@ const QuizScreen = ({ navigation, route }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Footer */}
       <View style={styles.footer}>
         <TouchableOpacity
           onPress={() => navigation.navigate('List', { focusSearchBar: true })}

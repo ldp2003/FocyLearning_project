@@ -8,44 +8,44 @@ import {
   ScrollView,
   Alert
 } from "react-native";
-import { useUser } from "../contexts/UserContext"; // Import context
+import { useUser } from "../contexts/UserContext";
 
 export default function SettingScreen({ navigation }) {
-  const { logout } = useUser(); // Lấy hàm logout từ context
+  const { logout } = useUser();
 
   const handleLogout = () => {
     console.log("Đang gọi handleLogout...");
 
     Alert.alert(
-      "Xác nhận đăng xuất", // Tiêu đề
-      "Bạn có chắc chắn muốn đăng xuất?", // Nội dung
+      "Xác nhận đăng xuất", 
+      "Bạn có chắc chắn muốn đăng xuất?", 
       [
         {
-          text: "Hủy", // Button "Cancel"
+          text: "Hủy",
           onPress: () => {
             console.log("Người dùng đã hủy đăng xuất");
           },
           style: "cancel",
         },
         {
-          text: "Đồng ý", // Button "OK"
+          text: "Đồng ý", 
           onPress: () => {
             console.log("Đang đăng xuất...");
-            logout(); // Gọi logout để xóa thông tin người dùng khỏi context
+            logout(); // xóa thông tin người dùng khỏi context
             navigation.reset({
             index: 0,
-            routes: [{ name: "Start" }], // Chỉ để lại màn hình Login
+            routes: [{ name: "Start" }],
           });
           },
         },
       ],
-      { cancelable: false } // Không cho phép tắt hộp thoại bằng cách nhấn bên ngoài
+      { cancelable: false } 
     );
   };
 
   return (
     <View style={styles.container}>
-      {/* Header */}
+
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Image style={styles.backButtonText} source={require('../assets/arrow_back.png')}/>

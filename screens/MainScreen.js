@@ -79,7 +79,7 @@ const MainScreen = ({ navigation }) => {
       ...chatMessages,
       { sender: 'user', message: userMessage },
     ]);
-    setUserMessage(''); // Reset input
+    setUserMessage('');
     setIsSendingMessage(true);
 
     try {
@@ -100,7 +100,7 @@ const MainScreen = ({ navigation }) => {
         },
         {
           headers: {
-            Authorization: `Bearer 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`,
+            Authorization: `Bearer api_key`,
           },
         }
       );
@@ -135,7 +135,7 @@ const MainScreen = ({ navigation }) => {
     <TouchableOpacity
       style={styles.featuredLesson}
       onPress={() => navigation.navigate('Lesson', { lessonId: item.id })}>
-      <Image source={item.image} style={styles.featuredImage} />
+      <Image source={{uri: item.image}} style={styles.featuredImage} />
       <Text style={styles.lessonTitle}>{item.title}</Text>
     </TouchableOpacity>
   );

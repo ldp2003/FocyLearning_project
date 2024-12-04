@@ -8,16 +8,14 @@ import {
 } from 'react-native';
 
 const ResultScreen = ({ route, navigation }) => {
-  const { lesson, correctedAnswer } = route.params;  // Nhận bài học từ trang QuizScreen
+  const { lesson, correctedAnswer } = route.params; 
   const totalQuestions = lesson.questions.length;
 
-  // Giả sử bạn có logic để tính tỷ lệ đúng
-  const [correctAnswers, setCorrectAnswers] = useState(correctedAnswer); // Ví dụ đã trả lời đúng 4 câu
+  const [correctAnswers, setCorrectAnswers] = useState(correctedAnswer); 
   const progress = (correctAnswers / totalQuestions) * 100;
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate('Lesson', {lessonId: lesson.id})}>
           <Text style={styles.backButtonText}>←</Text>
@@ -30,7 +28,6 @@ const ResultScreen = ({ route, navigation }) => {
         </View>
       </View>
 
-      {/* Progress Bar */}
       <View style={styles.progressBar}>
         <View
           style={{
@@ -40,11 +37,10 @@ const ResultScreen = ({ route, navigation }) => {
         />
       </View>
 
-      {/* Result Content */}
       <View style={styles.resultContent}>
         <Text style={styles.congratulationsText}>Chúc mừng bạn đã hoàn thành bài học!</Text>
         <Image
-          source={require('../assets/fox-logo.png')} // Hình ảnh của Focy
+          source={require('../assets/fox-logo.png')} 
           style={styles.avatarImage}
         />
 
@@ -67,7 +63,6 @@ const ResultScreen = ({ route, navigation }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Footer */}
       <View style={styles.footer}>
         <TouchableOpacity onPress={() => navigation.navigate('List', { focusSearchBar: true })} style={styles.footerItem}>
           <Image source={require('../assets/searchft.png')} style={styles.iconFooter} />

@@ -45,11 +45,10 @@ const ListScreen = ({ navigation, route }) => {
      if (focusSearchBar && searchInputRef.current) {
       setTimeout(() => {
         searchInputRef.current.focus();
-      }, 100);  // Thử với khoảng thời gian delay nhỏ (100ms)
+      }, 100); 
     }
   }, [focusSearchBar]);
 
-  // Hàm tìm kiếm
   const handleSearch = () => {
     const query = searchQuery.trim().toLowerCase();
     const results = featuredLessons.filter(
@@ -71,7 +70,7 @@ const ListScreen = ({ navigation, route }) => {
     <TouchableOpacity
       style={styles.featuredLesson}
       onPress={() => navigation.navigate('Lesson')}>
-      <Image source={item.image} style={styles.featuredImage} />
+      <Image source={{uri: item.image}} style={styles.featuredImage} />
       <Text style={styles.lessonTitle}>{item.title}</Text>
     </TouchableOpacity>
   );
