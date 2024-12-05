@@ -13,7 +13,7 @@ import axios from 'axios';
 import { useUser } from '../contexts/UserContext';
 
 export default function App({ navigation }) {
-  const { user, } = useUser();
+  const { user, updateUser} = useUser();
   const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -347,14 +347,7 @@ const styles = StyleSheet.create({
   saveIcon: {
     width: 24,
     height: 24,
-    tintColor: '#0597D8', // Màu sắc biểu tượng
-  },
-  lessonTitle: {
-    fontSize: 16,
-    flex: 3,
-    fontWeight: 'bold',
-    color: '#0597D8',
-    marginBottom: 10,
+    tintColor: '#0597D8', 
   },
   footer: {
     flexDirection: 'row',

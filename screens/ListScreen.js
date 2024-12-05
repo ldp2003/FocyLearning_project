@@ -9,8 +9,11 @@ import {
   ScrollView,
   FlatList,
 } from 'react-native';
+import axios from 'axios';
+import { useUser } from '../contexts/UserContext';
 
 const ListScreen = ({ navigation, route }) => {
+   const { user, updateUser } = useUser();
   const { focusSearchBar } = route.params || {};
   const { searchQuery: initialSearchQuery = '' } = route.params || {};
   const [featuredLessons, setFeaturedLessons] = useState([]);
@@ -66,14 +69,82 @@ const ListScreen = ({ navigation, route }) => {
     }
   };
 
-  const renderFeaturedLesson = ({ item }) => (
-    <TouchableOpacity
-      style={styles.featuredLesson}
-      onPress={() => navigation.navigate('Lesson', { lessonId: item.id })}>
-      <Image source={{uri: item.image}} style={styles.featuredImage} />
-      <Text style={styles.lessonTitle}>{item.title}</Text>
-    </TouchableOpacity>
-  );
+ const saveLessonToUser = async (userId, lessonId) => {
+    const userApiUrl = `https://6705f762031fd46a8311820f.mockapi.io/user/${userId}`;
+
+    try {
+      const userResponse = await axios.get(userApiUrl);
+      const user = userResponse.data;
+
+      if (!user.savedLessons) {
+        user.savedLessons = [];
+      }
+
+      if (!user.savedLessons.includes(lessonId)) {
+        user.savedLessons.push(lessonId);
+
+        await axios.put(userApiUrl, user);
+        updateUser(user);
+        console.log('ID bài học đã được lưu vào người dùng:', lessonId);
+      }
+    } catch (error) {
+      console.error('Lỗi khi lưu bài học vào người dùng:', error);
+    }
+  };
+
+  const removeLessonFromUser = async (userId, lessonId) => {
+    const userApiUrl = `https://6705f762031fd46a8311820f.mockapi.io/user/${userId}`;
+
+    try {
+      const userResponse = await axios.get(userApiUrl);
+      const user = userResponse.data;
+
+      if (user.savedLessons && user.savedLessons.includes(lessonId)) {
+        user.savedLessons = user.savedLessons.filter((id) => id !== lessonId);
+
+        await axios.put(userApiUrl, user);
+        updateUser(user);
+        console.log('ID bài học đã bị xóa khỏi danh sách:', lessonId);
+      }
+    } catch (error) {
+      console.error('Lỗi khi xóa bài học khỏi người dùng:', error);
+    }
+  };
+
+  const renderFeaturedLesson = ({ item }) => {
+    const isSaved = user.savedLessons && user.savedLessons.includes(item.id);
+
+    return (
+      <TouchableOpacity
+        style={styles.lessonCard}
+        onPress={() => navigation.navigate('Lesson', { lessonId: item.id })}>
+        <Image source={{ uri: item.image }} style={styles.lessonImage} />
+        <View style={styles.lessonInfo}>
+          <Text style={styles.lessonTitle} numberOfLines={2}>
+            {item.title}
+          </Text>
+        </View>
+        <TouchableOpacity
+          onPress={() => {
+            if (isSaved) {
+              removeLessonFromUser(user.id, item.id);
+            } else {
+              saveLessonToUser(user.id, item.id);
+            }
+          }}
+          style={styles.saveButton}>
+          <Image
+            source={
+              isSaved
+                ? require('../assets/bookmark.png') // Biểu tượng đã lưu
+                : require('../assets/save-instagram.png') // Biểu tượng lưu
+            }
+            style={styles.saveIcon}
+          />
+        </TouchableOpacity>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -204,32 +275,39 @@ const styles = StyleSheet.create({
     marginBottom: 0,
     fontSize: 16,
   },
-  lessonTitle: {
-    fontSize: 16,
-    flex: 3,
-    fontWeight: 'bold',
-    color: '#0597D8',
-    marginBottom: 10,
-  },
   featuredLessons: {
     marginBottom: 20,
   },
-  featuredLesson: {
+  lessonCard: {
     flexDirection: 'row',
-    width: '100%',
     backgroundColor: '#fff',
-    borderRadius: 10,
+    borderRadius: 8,
     padding: 10,
-    alignItems: 'center',
-    margin: 10,
-    marginLeft: 0,
-  },
-  featuredImage: {
-    flex: 2,
-    height: 80,
-    borderRadius: 10,
     marginBottom: 10,
+    alignItems: 'center',
+  },
+  lessonImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
     marginRight: 10,
+  },
+  lessonInfo: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  lessonTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#0597D8',
+  },
+  saveButton: {
+    padding: 5,
+  },
+  saveIcon: {
+    width: 24,
+    height: 24,
+    tintColor: '#0597D8', 
   },
   footer: {
     flexDirection: 'row',
