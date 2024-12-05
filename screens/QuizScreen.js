@@ -30,7 +30,7 @@ const QuizScreen = ({ navigation, route }) => {
           ? userAnswer
           : selectedAnswer,
       isCorrect: isCorrect,
-    };
+    }; 
 
     // Cập nhật bài học hiện tại trong danh sách lessons
     const updatedLessons = user.lessons.map((l) => {
@@ -54,8 +54,7 @@ const QuizScreen = ({ navigation, route }) => {
         const updatedProgress =
           ((currentQuestionIndex + 1) / lesson.questions.length) * 100;
 
-        console.log('Updated Progress:', updatedProgress);
-
+        console.log('Updated Progress:', updatedProgress); 
         // Trả về bài học đã cập nhật
         return {
           ...l,

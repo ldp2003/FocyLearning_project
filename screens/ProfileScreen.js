@@ -13,7 +13,7 @@ import axios from 'axios';
 import { useUser } from '../contexts/UserContext';
 
 export default function App({ navigation }) {
-  const { user, updateUser} = useUser();
+  const { user, updateUser } = useUser();
   const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -112,7 +112,7 @@ export default function App({ navigation }) {
             source={
               isSaved
                 ? require('../assets/bookmark.png')
-                : require('../assets/save-instagram.png') 
+                : require('../assets/save-instagram.png')
             }
             style={styles.saveIcon}
           />
@@ -170,17 +170,24 @@ export default function App({ navigation }) {
       </View>
 
       <View style={styles.lessons}>
-        <Text style={styles.sectionTitle}>Bài học đã lưu</Text>
         {loading ? (
           <ActivityIndicator size="large" color="#0597D8" />
         ) : lessons.length === 0 ? (
-          <Text>Không có bài học nào được lưu.</Text>
+          <View style={styles.centeredContainer}>
+            <Text style={styles.sectionTitle}>Bài học đã lưu</Text>
+            <Text style={styles.noLessonsText}>
+              Không có bài học nào được lưu.
+            </Text>
+          </View>
         ) : (
-          <FlatList
-            data={lessons}
-            renderItem={renderLesson}
-            keyExtractor={(item) => item.id}
-          />
+          <>
+            <Text style={styles.sectionTitle}>Bài học đã lưu</Text>
+            <FlatList
+              data={lessons}
+              renderItem={renderLesson}
+              keyExtractor={(item) => item.id}
+            />
+          </>
         )}
       </View>
 
@@ -313,11 +320,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
   },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
   lessonCard: {
     flexDirection: 'row',
     backgroundColor: '#fff',
@@ -347,7 +349,7 @@ const styles = StyleSheet.create({
   saveIcon: {
     width: 24,
     height: 24,
-    tintColor: '#0597D8', 
+    tintColor: '#0597D8',
   },
   footer: {
     flexDirection: 'row',
@@ -361,5 +363,23 @@ const styles = StyleSheet.create({
   iconFooter: {
     width: 25,
     height: 25,
+  },
+  centeredContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#0597D8',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  noLessonsText: {
+    fontSize: 16,
+    color: '#0597D8',
+    textAlign: 'center',
+    fontWeight: 'bold',
   },
 });

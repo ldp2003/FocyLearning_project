@@ -9,6 +9,7 @@ import {
   ScrollView,
   FlatList,
 } from 'react-native';
+import removeAccents from 'remove-accents';
 import axios from 'axios';
 import { useUser } from '../contexts/UserContext';
 
@@ -53,15 +54,19 @@ const ListScreen = ({ navigation, route }) => {
   }, [focusSearchBar]);
 
   const handleSearch = () => {
-    const query = searchQuery.trim().toLowerCase();
-    const results = featuredLessons.filter(
-      (lesson) =>
-        lesson.title.toLowerCase().includes(query) ||
-        (lesson.categories &&
-          lesson.categories.some((cat) => cat.toLowerCase().includes(query)))
+  const query = removeAccents(searchQuery.trim().toLowerCase());
+  const results = featuredLessons.filter((lesson) => {
+    const normalizedTitle = removeAccents(lesson.title.toLowerCase());
+    const normalizedCategories = lesson.categories
+      ? lesson.categories.map((cat) => removeAccents(cat.toLowerCase()))
+      : [];
+    return (
+      normalizedTitle.includes(query) ||
+      normalizedCategories.some((cat) => cat.includes(query))
     );
-    setFilteredLessons(results);
-  };
+  });
+  setFilteredLessons(results);
+};
 
   const handleSearchClick = () => {
     if (searchInputRef.current) {

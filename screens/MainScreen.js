@@ -278,7 +278,7 @@ const MainScreen = ({ navigation }) => {
                 <TouchableOpacity
                   onPress={() =>
                     navigation.navigate('Lesson', {
-                      lessonId: user.lastLesson.id,
+                      lessonId: user.lastLesson.lessonId,
                     })
                   }>
                   <Text style={styles.continueText}>Tiếp tục</Text>
