@@ -18,7 +18,7 @@ import axios from 'axios';
 import { useUser } from '../contexts/UserContext';
 
 const MainScreen = ({ navigation }) => {
-  const { user } = useUser();
+  const { user, updateUser} = useUser();
   const [featuredLessons, setFeaturedLessons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -146,6 +146,7 @@ const MainScreen = ({ navigation }) => {
         user.savedLessons.push(lessonId);
 
         await axios.put(userApiUrl, user);
+        updateUser(user);
         console.log('ID bài học đã được lưu vào người dùng:', lessonId);
       }
     } catch (error) {
@@ -164,6 +165,7 @@ const MainScreen = ({ navigation }) => {
         user.savedLessons = user.savedLessons.filter(id => id !== lessonId);
 
         await axios.put(userApiUrl, user);
+        updateUser(user);
         console.log('ID bài học đã bị xóa khỏi danh sách:', lessonId);
       }
     } catch (error) {

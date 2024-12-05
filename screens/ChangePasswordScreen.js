@@ -44,6 +44,7 @@ export default function ChangePasswordScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      {/* Nút quay lại */}
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Text style={styles.backButtonText}>{"←"}</Text>
         </TouchableOpacity>
