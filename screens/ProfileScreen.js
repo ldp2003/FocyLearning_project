@@ -111,8 +111,8 @@ export default function App({ navigation }) {
           <Image
             source={
               isSaved
-                ? require('../assets/bookmark.png') // Biểu tượng đã lưu
-                : require('../assets/save-instagram.png') // Biểu tượng lưu
+                ? require('../assets/bookmark.png')
+                : require('../assets/save-instagram.png') 
             }
             style={styles.saveIcon}
           />

@@ -9,16 +9,18 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useRoute } from '@react-navigation/native';
+import axios from 'axios';
 import { useUser } from '../contexts/UserContext';
 
 const LessonScreen = ({ navigation, route }) => {
-  const { user } = useUser();
+  const { user, updateUser } = useUser();
   const { lessonId } = route.params;
 
   const [lesson, setLesson] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [progress, setProgress] = useState(0);
+   const isSaved = user.savedLessons && user.savedLessons.includes(lessonId);
 
   useEffect(() => {
     const fetchLesson = async () => {
@@ -40,6 +42,48 @@ const LessonScreen = ({ navigation, route }) => {
     fetchLesson();
   }, [lessonId]);
 
+  const saveLessonToUser = async (userId, lessonId) => {
+    const userApiUrl = `https://6705f762031fd46a8311820f.mockapi.io/user/${userId}`;
+
+    try {
+      const userResponse = await axios.get(userApiUrl);
+      const user = userResponse.data;
+
+      if (!user.savedLessons) {
+        user.savedLessons = [];
+      }
+
+      if (!user.savedLessons.includes(lessonId)) {
+        user.savedLessons.push(lessonId);
+
+        await axios.put(userApiUrl, user);
+        updateUser(user);
+        console.log('ID bài học đã được lưu vào người dùng:', lessonId);
+      }
+    } catch (error) {
+      console.error('Lỗi khi lưu bài học vào người dùng:', error);
+    }
+  };
+
+  const removeLessonFromUser = async (userId, lessonId) => {
+    const userApiUrl = `https://6705f762031fd46a8311820f.mockapi.io/user/${userId}`;
+
+    try {
+      const userResponse = await axios.get(userApiUrl);
+      const user = userResponse.data;
+
+      if (user.savedLessons && user.savedLessons.includes(lessonId)) {
+        user.savedLessons = user.savedLessons.filter(id => id !== lessonId);
+
+        await axios.put(userApiUrl, user);
+        updateUser(user);
+        console.log('ID bài học đã bị xóa khỏi danh sách:', lessonId);
+      }
+    } catch (error) {
+      console.error('Lỗi khi xóa bài học khỏi người dùng:', error);
+    }
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -60,6 +104,7 @@ const LessonScreen = ({ navigation, route }) => {
       </View>
     );
   }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -102,11 +147,31 @@ const LessonScreen = ({ navigation, route }) => {
         </View>
         <Text style={styles.descriptionTitle}>Giới thiệu về bài học</Text>
         <Text style={styles.descriptionText}>{lesson.description}</Text>
+        <View style={{flexDirection:'row', alignItems:'center', justifyContent:'space-between'}}>
         <TouchableOpacity
           style={styles.startButton}
           onPress={() => navigation.navigate('Quiz', { lesson: lesson })}>
           <Text style={styles.startButtonText}>Bắt đầu thôi!</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            if (isSaved) {
+              removeLessonFromUser(user.id, lessonId);
+            } else {
+              saveLessonToUser(user.id, lessonId);
+            }
+          }}
+          style={styles.saveButton}>
+          <Image
+            source={
+              isSaved
+                ? require('../assets/bookmark.png')
+                : require('../assets/save-instagram.png') 
+            }
+            style={styles.saveIcon}
+          />
+        </TouchableOpacity>
+        </View>
       </ScrollView>
       <View style={styles.footer}>
         <TouchableOpacity
@@ -280,6 +345,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     marginTop: 20,
+    width:'80%'
   },
   startButtonText: {
     color: '#fff',
@@ -307,6 +373,15 @@ const styles = StyleSheet.create({
     width: 25,
     height: 25,
   },
+  saveButton: {
+    marginTop: 20,
+    padding: 5,
+  },
+  saveIcon: {
+    width: 30,
+    height: 30,
+    tintColor: '#0597D8', 
+  }
 });
 
 export default LessonScreen;
